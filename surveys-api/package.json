@@ -1,0 +1,22 @@
+{
+  "name": "surveys",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230228.0",
+    "typescript": "^4.9.5",
+    "vitest": "^0.29.2",
+    "wrangler": "^2.12.3"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@tsndr/cloudflare-worker-router": "^2.3.2",
+    "itty-router": "^3.0.11",
+    "itty-router-extras": "^0.4.2",
+    "zod": "^3.21.4"
+  }
+}

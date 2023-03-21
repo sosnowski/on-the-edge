@@ -1,0 +1,12 @@
+name = "surveys"
+main = "src/index.ts"
+compatibility_date = "2023-03-02"
+
+kv_namespaces = [
+    # { binding = "MicroSurvey", id = "2124dbfe99244a7295d01fe8a70caaac" },
+    { binding = "KV", id = "2124dbfe99244a7295d01fe8a70caaac", preview_id = "9be6888a7dce4f68822ed96fb84cd80b" }
+]
+
+services = [
+    { binding = "EVENTS_QUEUE", service = "events-consumer" },
+]
