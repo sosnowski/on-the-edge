@@ -1,17 +1,11 @@
-import { Pool } from "pg";
+import { Config, connect, Connection } from "@planetscale/database";
 
-let pool: Pool;
+export type Db = Connection;
 
-const connectionString =
-    "postgresql://user:pass@microsurvey-dev-6635.7tc.cockroachlabs.cloud:26257/microsurvey?sslmode=verify-full";
-
-export const getPool = (): Pool => {
-    if (!pool) {
-        pool = new Pool({
-            connectionString: connectionString,
-            max: 1,
-            database: "microsurvey",
-        });
+let db: Db;
+export const getDb = async (config: Config): Promise<Db> => {
+    if (!db) {
+        db = await connect(config);
     }
-    return pool;
+    return db;
 };

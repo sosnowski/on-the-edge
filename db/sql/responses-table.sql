@@ -1,12 +1,15 @@
 
-CREATE TABLE survey_responses (
-	id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-	userId UUID NOT NULL,
-	surveyId UUID NOT NULL,
-	fieldId UUID NOT NULL,
-	fieldType FieldType NOT NULL,
+DROP TABLE IF EXISTS responses;
+
+CREATE TABLE responses (
+	responseId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	userId INT NOT NULL,
+	surveyId INT NOT NULL,
+	fieldId INT NOT NULL,
+	sessionToken CHAR(30) NOT NULL,
+	fieldType ENUM ('text', 'number') NOT NULL,
 	content TEXT NULL,
 
-	created_at TIMESTAMPTZ,
-	updated_at TIMESTAMPTZ
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -27,12 +27,25 @@ export const handler = async (
         return new Response("Mssing suveyId param", { status: 400 });
     }
     console.log("Sending to the Events Queue!");
-    const res = await env.EVENTS_QUEUE.fetch(request.clone());
+    const event = await request.json<any>();
+    event.surveyId = +request.params["surveyId"];
+
+    const newPayload = JSON.stringify([event]);
+    const res = await env.EVENTS_QUEUE.fetch(
+        new Request(request.url, {
+            headers: {
+                ...request.headers,
+                "content-length": `${newPayload.length}`,
+            },
+            method: request.method,
+            body: newPayload,
+        })
+    );
 
     console.log("After Promise");
     console.log("Worker Response!");
     console.log("Status: " + res.status);
-    return new Response("It works!");
+    return new Response(res.statusText, { status: res.status });
 
     // const payload = await request.json<any>();
     // payload.surveyId = request.params["surveyId"];

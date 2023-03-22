@@ -3,7 +3,7 @@ import { z } from "zod";
 export const SurveyType = z.enum(["fixed", "modal"]);
 export const SurveyStatus = z.enum(["active", "paused"]);
 export const FieldType = z.enum(["text", "score"]);
-export const EntityId = z.string().min(10).max(20);
+export const EntityId = z.number().min(0);
 
 export const SurveyField = z.object({
     fieldId: EntityId,
@@ -51,21 +51,22 @@ export type EntityId = z.infer<typeof EntityId>;
 
 export const TextResponse = z.object({
     type: z.literal("text"),
-    fieldId: z.string().min(10),
+    fieldId: EntityId,
     content: z.string().optional(),
 });
 
 export const NumericResponse = z.object({
     type: z.literal("number"),
-    fieldId: z.string().min(10),
+    fieldId: EntityId,
     content: z.number().optional(),
 });
 
 export const ResponseSchema = z.union([TextResponse, NumericResponse]);
 
 const Event = z.object({
-    surveyId: z.string().min(10),
-    userId: z.string(),
+    surveyId: EntityId,
+    userId: EntityId,
+    sessionToken: z.string().length(30),
 });
 
 export const ResponseEvent = Event.extend({

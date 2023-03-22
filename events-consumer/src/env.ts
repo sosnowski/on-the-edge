@@ -10,4 +10,8 @@ export interface Env {
     //
     // Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
     // MY_SERVICE: Fetcher;
+
+    DB_HOST: string;
+    DB_USER: string;
+    DB_PASSWORD: string;
 }

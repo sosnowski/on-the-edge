@@ -1,15 +1,7 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `wrangler dev src/index.ts` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `wrangler publish src/index.ts --name my-worker` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
-
-import "reflect-metadata";
+import { SurveyEvent } from "shared/models/survey";
+import { getDb } from "db/client";
 import { Env } from "./env";
+import { handleEvents } from "./handler";
 
 export default {
     async fetch(
@@ -18,8 +10,20 @@ export default {
         ctx: ExecutionContext
     ): Promise<Response> {
         console.log("EVENTS CONSUMER!");
-        const text = await request.text();
-        console.log(text);
-        return new Response("Hello World!");
+
+        const db = await getDb({
+            host: env.DB_HOST,
+            username: env.DB_USER,
+            password: env.DB_PASSWORD,
+        });
+
+        const payload = await request.json();
+
+        if (!Array.isArray(payload)) {
+            return new Response("Invalid payload", { status: 400 });
+        }
+        const events = payload.map((e) => SurveyEvent.parse(e));
+        await handleEvents(db, events);
+        return new Response("Great success!");
     },
 };
