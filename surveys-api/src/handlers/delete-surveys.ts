@@ -11,14 +11,14 @@ export const handler = async (
     request: RouterRequest,
     env: Env
 ): Promise<Response> => {
-    const containerId = EntityId.parse(request.params["containerId"]);
+    const containerId = EntityId.parse(+request.params["containerId"]);
 
     const surveys = await env.KV.list<SurveyConfig>({
         prefix: `Container:${containerId}:Survey:`,
     });
 
     console.log("Will remove those KEYS!");
-    console.log(surveys.keys);
+    console.log(surveys.keys.map(({ name, metadata }) => name).join(", "));
 
     const removed = await Promise.all(
         surveys.keys.map(({ name, metadata }) => {

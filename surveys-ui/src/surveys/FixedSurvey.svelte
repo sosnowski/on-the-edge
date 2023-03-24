@@ -2,7 +2,10 @@
     import type { Survey } from "shared/models/survey";
     import Popup from "../containers/FixedPopup.svelte";
     import SurveyForm from "../form/SurveyForm.svelte";
+
     export let survey: Survey;
+    export let userToken: string;
+    export let sessionToken: string;
 
     let surveyVisible = false;
 
@@ -32,10 +35,6 @@
 
 {#if surveyVisible}
     <Popup show={surveyVisible}>
-        <SurveyForm
-            {survey}
-            userId="user-1234567890"
-            sessionId="some-session-id"
-        />
+        <SurveyForm {survey} {userToken} {sessionToken} />
     </Popup>
 {/if}

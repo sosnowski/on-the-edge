@@ -5,8 +5,8 @@
     import Page from "./Page.svelte";
 
     export let survey: Survey;
-    export let userId: string;
-    export let sessionId: string;
+    export let userToken: string;
+    export let sessionToken: string;
 
     let currentPage = 0;
     let sessionFinished; //load from session storage what is the status of the survey
@@ -36,13 +36,18 @@
             ([fieldId, response]) => {
                 return {
                     type: response.type,
-                    fieldId: fieldId,
+                    fieldId: +fieldId,
                     content: response.content || undefined,
                 };
             }
         );
 
-        await postResponse(survey.surveyId, userId, responses as Response[]); //weird typing problem
+        await postResponse(
+            survey.surveyId,
+            userToken,
+            sessionToken,
+            responses as Response[]
+        ); //weird typing problem
     };
 </script>
 

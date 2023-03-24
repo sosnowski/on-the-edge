@@ -4,6 +4,7 @@ export const SurveyType = z.enum(["fixed", "modal"]);
 export const SurveyStatus = z.enum(["active", "paused"]);
 export const FieldType = z.enum(["text", "score"]);
 export const EntityId = z.number().min(0);
+export const Token = z.string().length(30);
 
 export const SurveyField = z.object({
     fieldId: EntityId,
@@ -31,11 +32,21 @@ export const SurveyConfig = z.object({
     trigger: SurveyTrigger,
 });
 
+export const SurveyMetadata = SurveyConfig.extend({
+    surveyId: EntityId,
+});
+
 export const Survey = z.object({
     surveyId: EntityId,
     name: z.string(),
     config: SurveyConfig,
     pages: z.array(SurveyPage),
+});
+
+export const ContainerInfo = z.object({
+    userToken: Token,
+    sessionToken: Token,
+    surveys: z.array(SurveyMetadata),
 });
 
 export type SurveyField = z.infer<typeof SurveyField>;
@@ -44,10 +55,12 @@ export type Survey = z.infer<typeof Survey>;
 export type OnLoadTrigger = z.infer<typeof OnLoadTrigger>;
 export type SurveyTrigger = z.infer<typeof SurveyTrigger>;
 export type SurveyConfig = z.infer<typeof SurveyConfig>;
+export type SurveyMetadata = z.infer<typeof SurveyMetadata>;
 export type SurveyType = z.infer<typeof SurveyType>;
 export type SurveyStatus = z.infer<typeof SurveyStatus>;
 export type FieldType = z.infer<typeof FieldType>;
 export type EntityId = z.infer<typeof EntityId>;
+export type ContainerInfo = z.infer<typeof ContainerInfo>;
 
 export const TextResponse = z.object({
     type: z.literal("text"),
@@ -65,8 +78,8 @@ export const ResponseSchema = z.union([TextResponse, NumericResponse]);
 
 const Event = z.object({
     surveyId: EntityId,
-    userId: EntityId,
-    sessionToken: z.string().length(30),
+    userToken: Token,
+    sessionToken: Token,
 });
 
 export const ResponseEvent = Event.extend({

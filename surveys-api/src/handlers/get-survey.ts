@@ -6,8 +6,8 @@ export const handler = async (
     request: RouterRequest,
     env: Env
 ): Promise<Response> => {
-    const containerId = EntityId.parse(request.params["containerId"]);
-    const surveyId = EntityId.parse(request.params["surveyId"]);
+    const containerId = EntityId.parse(+request.params["containerId"]);
+    const surveyId = EntityId.parse(+request.params["surveyId"]);
 
     const KVKey = `Container:${containerId}:Survey:${surveyId}`;
     const data = await env.KV.get(KVKey, "json");

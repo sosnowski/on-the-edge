@@ -12,7 +12,7 @@ import { SurveyEvent } from "shared/models/survey";
 import { Router, IRequest } from "itty-router";
 import { Env } from "./env";
 import { handler as putSurveyHandler } from "./handlers/put-survey";
-import { handler as getSurveysHandler } from "./handlers/get-surveys";
+import { handler as getContainerInfo } from "./handlers/get-container";
 import { handler as getSurveyHandler } from "./handlers/get-survey";
 import { handler as putSurveyEvent } from "./handlers/put-event";
 import { handler as deleteSurveys } from "./handlers/delete-surveys";
@@ -21,7 +21,7 @@ const router = Router();
 
 router
     .post("/container/:containerId/surveys", putSurveyHandler as any)
-    .get("/container/:containerId/surveys", getSurveysHandler as any)
+    .get("/container/:containerId", getContainerInfo as any)
     .delete("/container/:containerId/surveys", deleteSurveys as any)
     .get("/container/:containerId/surveys/:surveyId", getSurveyHandler as any)
 

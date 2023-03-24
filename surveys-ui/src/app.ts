@@ -1,9 +1,27 @@
 import "./app.scss";
-import { loadSurveys } from "./loader";
+import { loadSurveys, loadContainerInfo } from "./loader";
 import FixedSurvey from "./surveys/FixedSurvey.svelte";
 import ModalSurvey from "./surveys/ModalSurvey.svelte";
 
-const surveys = await loadSurveys("1234567890");
+const CONTAINER_ID = "1234567890";
+
+const userToken = localStorage.getItem("microsurvey-user-token");
+const sessionToken = sessionStorage.getItem("microsurvey-session-token");
+
+const {
+    userToken: newUserToken,
+    sessionToken: newSessionToken,
+    surveys: surveysMeta,
+} = await loadContainerInfo(CONTAINER_ID, userToken, sessionToken);
+
+if (newUserToken) {
+    localStorage.setItem("microsurvey-user-token", newUserToken);
+}
+if (newSessionToken) {
+    sessionStorage.setItem("microsurvey-session-token", newSessionToken);
+}
+
+const surveys = await loadSurveys(CONTAINER_ID, surveysMeta);
 
 surveys.forEach((survey) => {
     let SurveyCmp;
@@ -28,6 +46,8 @@ surveys.forEach((survey) => {
         target: target,
         props: {
             survey: survey,
+            userToken: newUserToken,
+            sessionToken: newSessionToken,
         },
     });
 });

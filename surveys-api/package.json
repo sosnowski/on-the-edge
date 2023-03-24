@@ -17,6 +17,7 @@
     "@tsndr/cloudflare-worker-router": "^2.3.2",
     "itty-router": "^3.0.11",
     "itty-router-extras": "^0.4.2",
+    "nanoid": "^4.0.1",
     "zod": "^3.21.4"
   }
 }

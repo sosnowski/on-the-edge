@@ -1,42 +1,66 @@
 import type {
-    EntityId,
+    ContainerInfo,
     Response,
     Survey,
-    SurveyConfig,
+    SurveyMetadata,
 } from "shared/models/survey";
 
-export const loadSurvey = async (
+export const loadSurveys = async (
     containerId: string,
-    surveyId: string
-): Promise<Survey> => {
-    console.log(`Loading survey for ${containerId}/${surveyId}`);
+    surveysMeta: SurveyMetadata[]
+): Promise<Survey[]> => {
+    console.log(`Loading survey for ${containerId}`);
 
-    const resp = await fetch(
-        `http://localhost:8787/container/${containerId}/surveys/${surveyId}`,
-        {
-            method: "GET",
-        }
+    const loadingSurveys = surveysMeta
+        .filter((survey) => {
+            return true; //later filter based on type of survey etc.
+        })
+        .map((survey) => {
+            return fetch(
+                `http://localhost:8787/container/${containerId}/surveys/${survey.surveyId}`,
+                {
+                    method: "GET",
+                }
+            );
+        });
+
+    const results = await Promise.all(loadingSurveys);
+
+    return Promise.all(
+        results.map((resp) => {
+            if (!resp.ok) {
+                console.error(resp.statusText);
+                throw new Error("Unable to load surveys! " + resp.url);
+            }
+            return resp.json();
+        })
     );
-
-    if (!resp.ok) {
-        console.error(resp.statusText);
-        throw new Error("Unable to load survey! Http Status: " + resp.status);
-    }
-
-    console.log("Surveys loaded, status: " + resp.status);
-
-    return resp.json();
 };
 
-export const loadSurveys = async (containerId: string): Promise<Survey[]> => {
-    console.log("Loading Surveys for Workspace " + containerId);
-    const resp = await fetch(
-        `http://localhost:8787/container/${containerId}/surveys`,
-        {
-            method: "GET",
-        }
+export const loadContainerInfo = async (
+    containerId: string,
+    userToken?: string,
+    sessionToken?: string
+): Promise<ContainerInfo> => {
+    console.log(
+        "Loading Surveys for Workspace " +
+            containerId +
+            "..." +
+            userToken +
+            "..." +
+            sessionToken
     );
-    console.log(resp);
+    const url = new URL(`http://localhost:8787/container/${containerId}`);
+    if (userToken) {
+        url.searchParams.append("userToken", userToken);
+    }
+    if (sessionToken) {
+        url.searchParams.append("sessionToken", sessionToken);
+    }
+    const resp = await fetch(url.toString(), {
+        method: "GET",
+    });
+
     if (!resp.ok) {
         console.error(resp.statusText);
         throw new Error("Unable to load surveys! Http Status: " + resp.status);
@@ -44,22 +68,13 @@ export const loadSurveys = async (containerId: string): Promise<Survey[]> => {
 
     console.log("Surveys loaded, status: " + resp.status);
 
-    const surveysConfigs: Record<EntityId, SurveyConfig> = await resp.json();
-    console.log("Surveys configs", surveysConfigs);
-    //surveys loaded now filter those that were already shown to the user / session and load details of remaining ones
-    const surveys = Promise.all(
-        Object.entries(surveysConfigs).map(([key, _config]) => {
-            //filter surveys
-            return loadSurvey(containerId, key);
-        })
-    );
-
-    return surveys;
+    return resp.json();
 };
 
 export const postResponse = async (
-    surveyId: string,
-    userId: string,
+    surveyId: number,
+    userToken: string,
+    sessionToken: string,
     responses: Response[]
 ): Promise<void> => {
     console.log(`Sending response for`, responses);
@@ -70,7 +85,8 @@ export const postResponse = async (
             method: "POST",
             body: JSON.stringify({
                 type: "response",
-                userId: userId,
+                userToken: userToken,
+                sessionToken: sessionToken,
                 responses: responses,
             }),
         }
