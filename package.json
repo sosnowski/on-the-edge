@@ -13,6 +13,7 @@
     "surveys-ui",
     "shared",
     "events-consumer",
-    "db"
+    "db",
+    "dashboard"
   ]
 }

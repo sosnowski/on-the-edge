@@ -1,5 +1,7 @@
 import { nanoid } from "nanoid";
-import { ContainerInfo, EntityId, SurveyMetadata } from "shared/models/survey";
+import { EntityId } from "shared/models/base/base";
+import type { SurveyMetadata } from "shared/models/surveys/survey";
+import type { ContainerInfo } from "shared/models/surveys/container";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 
@@ -24,7 +26,6 @@ export const handler = async (
             return metadata && metadata.status === "active";
         })
         .map(({ name, metadata }) => {
-            const surveyId = name.split(":").splice(-1, 1)[0];
             return metadata!;
         });
 

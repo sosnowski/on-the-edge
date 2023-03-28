@@ -3,6 +3,8 @@ import { loadSurveys, loadContainerInfo } from "./loader";
 import FixedSurvey from "./surveys/FixedSurvey.svelte";
 import ModalSurvey from "./surveys/ModalSurvey.svelte";
 
+import App from "./App.svelte";
+
 const CONTAINER_ID = "1234567890";
 
 const userToken = localStorage.getItem("microsurvey-user-token");
@@ -52,6 +54,9 @@ surveys.forEach((survey) => {
     });
 });
 
+new App({
+    target: document.getElementById("app"),
+});
 // logika odpowiedzialna za określenie jaki to user i workspace / container
 // pobranie aktywnych ankiet z API
 // wyrenderowanie ankiet + lub podpięcie odpowiednich triggerów w zaleności od typu ankiety

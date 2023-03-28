@@ -1,17 +1,14 @@
-import type { Connection, ExecutedQuery } from "@planetscale/database";
-import { nanoid } from "nanoid";
-import { ResponseEvent, SurveyEvent } from "shared/models/survey";
+import { ResponseEvent, SurveyEvent } from "shared/models/surveys/response";
+import { Db } from "./client";
 
-export const getAllResponses = async (
-    db: Connection
-): Promise<SurveyEvent[]> => {
+export const getAllResponses = async (db: Db): Promise<SurveyEvent[]> => {
     console.log("Executing SELECT * query");
     const res = await db.execute("SELECT * FROM responses");
     return res.rows.map((row) => SurveyEvent.parse(row));
 };
 
 export const saveResponses = async (
-    db: Connection,
+    db: Db,
     event: ResponseEvent[]
 ): Promise<void> => {
     const values = event.flatMap((event) =>
