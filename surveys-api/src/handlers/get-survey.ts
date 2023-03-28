@@ -1,4 +1,4 @@
-import { EntityId, Survey } from "shared/models/survey";
+import { EntityId, SurveyInfo } from "shared/models/surveys/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 
@@ -13,5 +13,5 @@ export const handler = async (
     const data = await env.KV.get(KVKey, "json");
 
     //parsing is theoretically not needed here and we could just return string json but it allows us to validate
-    return new Response(JSON.stringify(Survey.parse(data)));
+    return new Response(JSON.stringify(SurveyInfo.parse(data)));
 };

@@ -1,6 +1,7 @@
 //import zod
 import { z } from "zod";
 import { EntityId, Token } from "../base/base";
+export * from "../base/base";
 
 export const TextResponse = z.object({
     type: z.literal("text"),
@@ -14,7 +15,7 @@ export const NumericResponse = z.object({
     content: z.number().optional(),
 });
 
-export const ResponseSchema = z.union([TextResponse, NumericResponse]);
+export const SurveyResponse = z.union([TextResponse, NumericResponse]);
 
 const Event = z.object({
     surveyId: EntityId,
@@ -24,7 +25,7 @@ const Event = z.object({
 
 export const ResponseEvent = Event.extend({
     type: z.literal("response"),
-    responses: z.array(z.union([TextResponse, NumericResponse])),
+    responses: z.array(SurveyResponse),
 });
 
 export const ActionType = z.enum(["open", "finish"]);
@@ -38,7 +39,7 @@ export const SurveyEvent = z.union([ResponseEvent, ActionEvent]);
 
 export type TextResponse = z.infer<typeof TextResponse>;
 export type NumericResponse = z.infer<typeof NumericResponse>;
-export type Response = TextResponse | NumericResponse;
+export type SurveyResponse = z.infer<typeof SurveyResponse>;
 export type ResponseEvent = z.infer<typeof ResponseEvent>;
 export type ActionType = z.infer<typeof ActionType>;
 export type ActionEvent = z.infer<typeof ActionEvent>;

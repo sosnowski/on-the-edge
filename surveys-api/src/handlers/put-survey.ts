@@ -1,4 +1,8 @@
-import { EntityId, Survey } from "shared/models/survey";
+import {
+    EntityId,
+    SurveyInfo,
+    SurveyMetadata,
+} from "shared/models/surveys/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 
@@ -9,15 +13,18 @@ export const handler = async (
     const containerId = EntityId.parse(+request.params["containerId"]);
 
     const payload = await request.json();
-    const survey: Survey = Survey.parse(payload);
+    const survey: SurveyInfo = SurveyInfo.parse(payload);
 
     const KVKey = `Container:${containerId}:Survey:${survey.surveyId}`;
 
     await env.KV.put(KVKey, JSON.stringify(survey), {
         metadata: {
-            ...survey.config,
             surveyId: survey.surveyId,
-        },
+            type: survey.type,
+            display: survey.display,
+            status: survey.status,
+            triggerConfig: survey.triggerConfig,
+        } satisfies SurveyMetadata,
     });
 
     return new Response("");

@@ -1,9 +1,9 @@
 import {
     EntityId,
     Survey,
-    SurveyConfig,
+    SurveyMetadata,
     SurveyStatus,
-} from "shared/models/survey";
+} from "shared/models/surveys/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 
@@ -13,7 +13,7 @@ export const handler = async (
 ): Promise<Response> => {
     const containerId = EntityId.parse(+request.params["containerId"]);
 
-    const surveys = await env.KV.list<SurveyConfig>({
+    const surveys = await env.KV.list<SurveyMetadata>({
         prefix: `Container:${containerId}:Survey:`,
     });
 

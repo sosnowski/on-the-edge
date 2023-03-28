@@ -9,6 +9,7 @@ import {
 import { EntityId } from "../base/base";
 
 export * from "../base/survey";
+export * from "../base/base";
 
 export const SurveyPageInfo = SurveyPage.extend({
     fields: z.array(SurveyField),
@@ -19,7 +20,7 @@ export const SurveyMetadata = z.object({
     type: SurveyType,
     display: Survey.shape.display,
     status: Survey.shape.status,
-    trigger: SurveyTrigger,
+    triggerConfig: SurveyTrigger,
 });
 
 export const SurveyInfo = Survey.extend({

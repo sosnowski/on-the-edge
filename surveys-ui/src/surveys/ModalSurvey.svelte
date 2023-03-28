@@ -1,11 +1,11 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
-    import type { Survey } from "shared/models/survey";
+    import type { SurveyInfo } from "shared/models/surveys/survey";
     import { onLoad } from "../triggers";
     import Modal from "../containers/Modal.svelte";
     import SurveyForm from "../form/SurveyForm.svelte";
 
-    export let survey: Survey;
+    export let survey: SurveyInfo;
     export let userToken: string;
     export let sessionToken: string;
 
@@ -27,7 +27,7 @@
 </script>
 
 {#if surveyVisible}
-    <Modal show={surveyVisible} on:close={closeSurvey}>
+    <Modal on:close={closeSurvey}>
         <SurveyForm {survey} {userToken} {sessionToken} />
     </Modal>
 {/if}

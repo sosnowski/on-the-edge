@@ -2,9 +2,9 @@
     import ScoreIcons from "./fields/ScoreIcons.svelte";
     import TextField from "./fields/TextField.svelte";
     import { createEventDispatcher, SvelteComponent } from "svelte";
-    import type { SurveyPage, SurveyField } from "shared/models/survey";
+    import type { SurveyPageInfo, SurveyField } from "shared/models/surveys/survey";
 
-    export let page: SurveyPage;
+    export let page: SurveyPageInfo;
     const dispatch = createEventDispatcher<{
         submit: Record<string, { type: "string" | "number"; content: unknown }>;
     }>();

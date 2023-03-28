@@ -1,14 +1,11 @@
-import type {
-    ContainerInfo,
-    Response,
-    Survey,
-    SurveyMetadata,
-} from "shared/models/survey";
+import type { SurveyInfo, SurveyMetadata } from "shared/models/surveys/survey";
+import type { SurveyResponse } from "shared/models/surveys/response";
+import type { ContainerInfo } from "shared/models/surveys/container";
 
 export const loadSurveys = async (
     containerId: string,
     surveysMeta: SurveyMetadata[]
-): Promise<Survey[]> => {
+): Promise<SurveyInfo[]> => {
     console.log(`Loading survey for ${containerId}`);
 
     const loadingSurveys = surveysMeta
@@ -75,7 +72,7 @@ export const postResponse = async (
     surveyId: number,
     userToken: string,
     sessionToken: string,
-    responses: Response[]
+    responses: SurveyResponse[]
 ): Promise<void> => {
     console.log(`Sending response for`, responses);
 

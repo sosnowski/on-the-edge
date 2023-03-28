@@ -1,4 +1,4 @@
-import { SurveyEvent } from "shared/models/survey";
+import { SurveyEvent } from "shared/models/surveys/response";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 

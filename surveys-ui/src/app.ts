@@ -28,7 +28,7 @@ const surveys = await loadSurveys(CONTAINER_ID, surveysMeta);
 surveys.forEach((survey) => {
     let SurveyCmp;
 
-    switch (survey.config.type) {
+    switch (survey.type) {
         case "fixed":
             SurveyCmp = FixedSurvey;
             break;
@@ -37,7 +37,7 @@ surveys.forEach((survey) => {
             break;
     }
 
-    console.log("Rendering " + survey.config.type + " survey");
+    console.log("Rendering " + survey.type + " survey");
 
     const target = document.createElement("div");
     target.id = "microsurvey-" + survey.surveyId;

@@ -1,10 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { Survey, Response, SurveyPage } from "shared/models/survey";
+    import type { SurveyInfo, SurveyPageInfo } from "shared/models/surveys/survey";
+    import type { SurveyResponse } from 'shared/models/surveys/response';
     import { postResponse } from "../loader";
     import Page from "./Page.svelte";
 
-    export let survey: Survey;
+    export let survey: SurveyInfo;
     export let userToken: string;
     export let sessionToken: string;
 
@@ -24,7 +25,7 @@
     }
 
     const onPageSubmit = async (
-        page: SurveyPage,
+        page: SurveyPageInfo,
         event: CustomEvent<
             Record<string, { type: "string" | "number"; content: unknown }>
         >
@@ -46,7 +47,7 @@
             survey.surveyId,
             userToken,
             sessionToken,
-            responses as Response[]
+            responses as SurveyResponse[]
         ); //weird typing problem
     };
 </script>

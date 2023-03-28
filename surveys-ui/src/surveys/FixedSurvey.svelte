@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { Survey } from "shared/models/survey";
+    import type { SurveyInfo } from "shared/models/surveys/survey";
     import Popup from "../containers/FixedPopup.svelte";
     import SurveyForm from "../form/SurveyForm.svelte";
 
-    export let survey: Survey;
+    export let survey: SurveyInfo;
     export let userToken: string;
     export let sessionToken: string;
 
