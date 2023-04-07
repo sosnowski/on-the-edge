@@ -2,7 +2,7 @@ import { z } from "zod";
 import { EntityId } from "./base";
 
 export const Container = z.object({
-    containerId: EntityId,
+    id: EntityId,
     name: z.string(),
     description: z.string(),
     surveysCount: z.number().min(0).optional(),

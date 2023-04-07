@@ -20,7 +20,7 @@ export const OnClickTrigger = z.object({
 export const SurveyTrigger = z.union([OnLoadTrigger, OnClickTrigger]);
 
 export const Survey = z.object({
-    surveyId: EntityId,
+    id: EntityId,
     name: z.string(),
     type: SurveyType,
     display: z.enum(["always", "user", "session"]),

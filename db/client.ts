@@ -1,11 +1,11 @@
-import { Config, connect, Connection } from "@planetscale/database";
+import {
+    createClient,
+    SupabaseClient,
+    SupabaseClientOptions,
+} from "@supabase/supabase-js";
 
-export type Db = Connection;
+export type Db = SupabaseClient;
 
-let db: Db;
-export const getDb = async (config: Config): Promise<Db> => {
-    if (!db) {
-        db = await connect(config);
-    }
-    return db;
+export const getDb = (url: string, apiKey: string): Db => {
+    return createClient(url, apiKey);
 };

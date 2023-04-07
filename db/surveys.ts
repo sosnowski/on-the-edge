@@ -6,9 +6,13 @@ export const getAllSurveysByContainer = async (
     containerId: number
 ): Promise<Survey[]> => {
     console.log("Executing SELECT * query");
-    const res = await db.execute(
-        "SELECT * FROM surveys WHERE containerId = ? ORDER BY createdAt DESC",
-        [containerId]
-    );
-    return res.rows.map((row) => Survey.parse(row));
+    const res = await db
+        .from("surveys")
+        .select()
+        .eq("containerId", containerId)
+        .order("created", { ascending: false });
+
+    console.log("Query result: ", res);
+
+    return (res.data || []).map((row) => Survey.parse(row));
 };
