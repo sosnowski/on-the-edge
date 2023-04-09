@@ -1,23 +1,19 @@
 <script lang="ts">
 	import type { PageData } from "./$types";
-	import { type TableSource, Table, tableMapperValues } from "@skeletonlabs/skeleton";
 
 	export let data: PageData;
-
-	const tableSimple: TableSource = {
-	// A list of heading labels.
-		head: ['Name', 'Type', 'Display', 'Status', 'Trigger Type'],
-		// The data visibly shown in your table body UI.
-		body: tableMapperValues(data.surveys, ['name', 'type', 'display', 'status', 'triggerConfig.type']),
-		// Optional: The data returned when interactive is enabled and a row is clicked.
-		meta: tableMapperValues(data.surveys, ['id', 'name', 'type', 'display', 'status', 'triggerConfig.type']),
-		// Optional: A list of footer labels.
-	};
-
-	const onRowSelected = (e: CustomEvent) => {
-		console.log('On Survey Row selected');
-		console.log(e.detail);
-	}
 </script>
 
-<Table class="p-8" source={tableSimple} interactive on:selected={onRowSelected}/>
+<div class="flex flex-row gap-4 flex-wrap justify-start items-start p-8">
+{#each data.surveys as survey}
+	<a href={`/containers/${survey.containerId}/surveys/${survey.id}`} class="card variant-ghost-primary card-hover cursor-pointer">
+		<header class="card-header text-lg font-bold text-primary-500">{survey.name}</header>
+		<section class="p-4">{survey.type} / {survey.display}</section>
+		<footer class="card-footer text-sm text-secondary-300">{survey.triggerConfig.type}, status: {survey.status}</footer>
+	</a>
+{:else}
+	<p class="text-center">No surveys found</p> 
+{/each}
+</div>
+
+<a href={`/containers/${data.containerId}/surveys/add`}>Add survey</a>
