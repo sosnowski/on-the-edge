@@ -2,7 +2,7 @@ import type {
     OnLoadTrigger,
     OnClickTrigger,
     SurveyTrigger,
-} from "shared/models/base/survey";
+} from "shared/models/survey";
 
 export type Trigger = (
     config: SurveyTrigger,

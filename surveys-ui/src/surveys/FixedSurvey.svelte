@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SurveyInfo } from "shared/models/surveys/survey";
+    import type { SurveyInfo } from "shared/models/survey";
     import Popup from "../containers/FixedPopup.svelte";
     import SurveyForm from "../form/SurveyForm.svelte";
 

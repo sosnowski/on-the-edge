@@ -1,6 +1,6 @@
-import type { SurveyInfo, SurveyMetadata } from "shared/models/surveys/survey";
-import type { SurveyResponse } from "shared/models/surveys/response";
-import type { ContainerInfo } from "shared/models/surveys/container";
+import type { SurveyInfo, SurveyMetadata } from "shared/models/survey";
+import type { SurveyResponse } from "shared/models/response";
+import type { ContainerInfo } from "shared/models/container";
 
 export const loadSurveys = async (
     containerId: string,

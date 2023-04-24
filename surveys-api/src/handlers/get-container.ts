@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
-import { EntityId } from "shared/models/base/base";
-import type { SurveyMetadata } from "shared/models/surveys/survey";
-import type { ContainerInfo } from "shared/models/surveys/container";
+import { EntityId } from "shared/models/base";
+import type { SurveyMetadata } from "shared/models/survey";
+import type { ContainerInfo } from "shared/models/container";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 

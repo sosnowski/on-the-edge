@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Container } from "shared/models/base/container";
+	import type { Container } from "shared/models/container";
 	import { createEventDispatcher } from "svelte";
 
 	export let containers: Container[];

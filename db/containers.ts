@@ -1,5 +1,5 @@
 import { Db } from "./client";
-import { Container } from "shared/models/surveys/container";
+import { Container } from "shared/models/container";
 
 export const getAllContainers = async (db: Db): Promise<Container[]> => {
     console.log("Executing SELECT * query");

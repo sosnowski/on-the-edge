@@ -3,7 +3,7 @@ import {
     Survey,
     SurveyMetadata,
     SurveyStatus,
-} from "shared/models/surveys/survey";
+} from "shared/models/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 

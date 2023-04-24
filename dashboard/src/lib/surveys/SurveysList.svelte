@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Survey } from "shared/models/base/survey";
+	import type { Survey } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 
 	export let containerId: number;

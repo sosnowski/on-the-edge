@@ -1,0 +1,30 @@
+[
+	{
+		"name": "NPS - Net Promoter Score",
+		"description": "This is a cool survey",
+		"fields": [
+			{
+				"label": "How likely is it that you would recommend our product to a friend or colleague?",
+				"type": "rating",
+				"autoSubmit": true
+			},
+			{
+				"label": "What is the main reason for your score?",
+				"type": "text",
+				"autoSubmit": false
+			}
+		]
+	},
+	{
+		"name": "Simple Feedback Form",
+		"description": "A basic feedback form to gather open feedback",
+		"fields": [
+			{
+				"label": "Let us know what you think about our product",
+				"type": "text",
+				"autoSubmit": false
+			}
+		]
+	}
+]
+

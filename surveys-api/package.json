@@ -1,5 +1,5 @@
 {
-  "name": "surveys",
+  "name": "surveys-api",
   "version": "0.0.0",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230228.0",

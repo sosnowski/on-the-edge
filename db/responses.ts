@@ -1,4 +1,4 @@
-import { ResponseEvent, SurveyEvent } from "shared/models/surveys/response";
+import { ResponseEvent, SurveyEvent } from "shared/models/response";
 import { Db } from "./client";
 
 export const getAllResponses = async (db: Db): Promise<SurveyEvent[]> => {

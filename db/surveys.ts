@@ -1,5 +1,5 @@
 import { Db } from "./client";
-import { Survey } from "shared/models/base/survey";
+import { Survey } from "shared/models/survey";
 
 export const getAllSurveysByContainer = async (
     db: Db,

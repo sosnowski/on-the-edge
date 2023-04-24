@@ -1,4 +1,4 @@
-import { EntityId, SurveyInfo } from "shared/models/surveys/survey";
+import { EntityId, SurveyInfo } from "shared/models/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 
