@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SurveyInfo } from "shared/models/survey";
+	import type { OnLoadTrigger, SurveyInfo, SurveyTrigger } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 
 	export let survey: SurveyInfo;
@@ -7,100 +7,139 @@
 		change: Partial<SurveyInfo>;
 	}>();
 
-	let triggerType = "fixed";
-	let delay = 0;
-	let pageRegex = "*";
-	let selector = "";
+	let triggerType = survey.triggerConfig.type;
+	let delay = (survey.triggerConfig as OnLoadTrigger).delay || 0;
+	let pageRegex = (survey.triggerConfig as OnLoadTrigger).pageRegex || "";
+	let selector = (survey.triggerConfig as OnLoadTrigger).selector || "";
 
-	$: {
-		console.log("Trigger type");
-		console.log(triggerType);
+	const onSubmit = (e: Event) => {
+		console.log("submit");
+		const data = new FormData(e.target as HTMLFormElement);
 
-		switch (triggerType) {
+		console.log(Object.fromEntries(data.entries()));
+
+		let triggerConfig: SurveyTrigger;
+		switch (data.get("trigger") as string) {
 			case "onload":
-				dispatch("change", {
-					triggerConfig: {
-						type: "onload",
-						delay: delay,
-						pageRegex: pageRegex,
-					},
-				});
+				triggerConfig = {
+					type: "onload",
+					delay: +(data.get("delay") || 0),
+					pageRegex: (data.get("pageRegex") as string) || undefined,
+				};
 				break;
 			case "onclick":
-				dispatch("change", {
-					triggerConfig: {
-						type: "onclick",
-						delay: delay,
-						selector: selector,
-					},
-				});
+				triggerConfig = {
+					type: "onclick",
+					delay: +(data.get("delay") || 0),
+					selector: data.get("selector") as string,
+				};
 				break;
 			case "fixed":
-				dispatch("change", {
-					triggerConfig: {
-						type: "fixed",
-					},
-				});
+			default:
+				triggerConfig = {
+					type: "fixed",
+				};
 				break;
 		}
-	}
+
+		const result: Partial<SurveyInfo> = {
+			name: data.get("name") as string,
+			triggerConfig: triggerConfig,
+		};
+
+		console.log("SURVEY CONFIG", result);
+
+		dispatch("change", result);
+	};
 </script>
 
-<form method="post" class="contents">
-	<label for="trigger.type" class="block w-full leading-6 text-slate-700">Trigger type</label>
-	<select name="trigger.type" id="template" class="field-std block w-full" bind:value={triggerType}>
-		<option value="fixed">Fixed</option>
-		<option value="onload">Onload</option>
-		<option value="onclick">Onclick</option>
-	</select>
-
-	{#if triggerType === "onload"}
-		<label for="trigger.delay" class="block w-full leading-6 text-slate-700"
-			>Delay (in seconds)</label
-		>
-		<input
-			type="number"
-			name="trigger.delay"
-			id="trigger.delay"
-			required
-			placeholder="0"
-			class="field-std block w-full"
-			bind:value={delay}
-		/>
-		<label for="trigger.pageRegex" class="block w-full leading-6 text-slate-700">Page Regex</label>
+<div class="flex flex-col gap-2 h-full">
+	<form method="post" class="contents" on:submit|preventDefault={onSubmit}>
+		<label for="name" class="block w-full leading-6 text-slate-700">Survey name</label>
 		<input
 			type="text"
-			name="trigger.pageRegex"
-			id="trigger.pageRegex"
+			name="name"
+			id="name"
 			required
-			placeholder="*"
 			class="field-std block w-full"
-			bind:value={pageRegex}
+			placeholder="My awesome survey"
+			value={survey.name || ""}
 		/>
-	{/if}
 
-	{#if triggerType === "onclick"}
-		<label for="trigger.delay" class="block w-full leading-6 text-slate-700"
-			>Delay (in seconds)</label
-		>
-		<input
-			type="number"
-			name="trigger.delay"
-			id="trigger.delay"
-			required
-			placeholder="0"
-			class="field-std block w-full"
-			bind:value={delay}
-		/>
-		<label for="trigger.selector" class="block w-full leading-6 text-slate-700">Selector</label>
-		<input
-			type="text"
-			name="trigger.selector"
-			id="trigger.selector"
-			required
-			placeholder="#survey-trigger"
-			class="field-std block w-full"
-			bind:value={selector}
-		/>
-	{/if}
-</form>
+		<label for="trigger" class="block w-full leading-6 text-slate-700 mt-4">Trigger type</label>
+		<select name="trigger" id="trigger" class="field-std block w-full" bind:value={triggerType}>
+			<option value="fixed">Fixed</option>
+			<option value="onload">Onload</option>
+			<option value="onclick">Onclick</option>
+		</select>
+
+		{#if triggerType === "onload"}
+			<fieldset class="contents">
+				<legend class="font-bold mt-4">Trigger details</legend>
+				<label for="pageRegex" class="block w-full leading-6 text-slate-700 mt-4">Page Regex</label>
+				<input
+					type="text"
+					name="pageRegex"
+					id="pageRegex"
+					placeholder="/articles/.*"
+					class="field-std block w-full"
+					value={pageRegex}
+				/>
+				<label for="delay" class="block w-full leading-6 text-slate-700 mt-4">Delay</label>
+				<input
+					type="range"
+					name="delay"
+					id="delay"
+					min="0"
+					max="10"
+					step="0.1"
+					class="appearance-none block w-full h-1 bg-slate-200"
+					bind:value={delay}
+				/>
+				<span class="text-slate-500 block text-center">{delay} seconds</span>
+			</fieldset>
+		{/if}
+
+		{#if triggerType === "onclick"}
+			<fieldset class="contents">
+				<legend class="font-bold mt-4">Trigger details</legend>
+				<label for="selector" class="block w-full leading-6 text-slate-700 mt-4">Selector</label>
+				<input
+					type="text"
+					name="selector"
+					id="selector"
+					required
+					placeholder="#my-survey-button"
+					class="field-std block w-full"
+					value={selector}
+				/>
+				<label for="delay" class="block w-full leading-6 text-slate-700 mt-4">Delay</label>
+				<input
+					type="range"
+					name="delay"
+					id="delay"
+					min="0"
+					max="10"
+					step="0.1"
+					class="appearance-none block w-full h-1 bg-slate-200"
+					bind:value={delay}
+				/>
+				<span class="text-slate-500 block text-center">{delay} seconds</span>
+			</fieldset>
+		{/if}
+
+		<button type="submit" class="btn-primary w-1/3 self-center my-4">Save</button>
+	</form>
+</div>
+
+<style>
+	input[type="range"]::-webkit-slider-thumb {
+		width: 15px;
+		-webkit-appearance: none;
+		appearance: none;
+		height: 15px;
+		cursor: ew-resize;
+		background: rgb(217, 70, 239);
+		border-radius: 50%;
+	}
+</style>

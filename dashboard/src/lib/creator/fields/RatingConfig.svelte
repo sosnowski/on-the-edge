@@ -6,7 +6,6 @@
 	const dispatch = createEventDispatcher<{ save: RatingField }>();
 
 	const onSubmit = (e: Event) => {
-		e.preventDefault();
 		console.log("submit");
 		const data = new FormData(e.target as HTMLFormElement);
 

@@ -38,12 +38,12 @@
 <div class="absolute inset-0 overflow-hidden flex justify-center items-center">
 	<div class="grid grid-cols-[auto_1fr_auto_auto] grid-rows-[1fr_auto] w-full max-w-xl gap-4">
 		<div
-			class="col-start-2 row-start-1 overflow-hidden rounded-lg bg-white p-4 text-left shadow-lg transition-all"
+			class="col-start-2 row-start-1 overflow-hidden rounded-lg bg-white text-left shadow-lg transition-all"
 		>
 			{#if survey.fields.length > 0}
 				<SurveyForm {survey} {page} on:submit={onFormSubmit} />
 			{:else}
-				<div class="text-center">
+				<div class="text-center p-4">
 					<h2 class="text-lg text-fuchsia-500">No questions yet</h2>
 					<p class="text-slate-500">Click the add button to create a new question</p>
 				</div>

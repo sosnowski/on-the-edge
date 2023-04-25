@@ -11,7 +11,7 @@
 	const initialSurvey: SurveyInfo = {
 		id: 1,
 		containerId: 1,
-		name: "Test",
+		name: "Survey name",
 		display: "always",
 		status: "active",
 		triggerConfig: {
@@ -47,6 +47,7 @@
 					...currentSurvey,
 					...e.detail,
 				};
+				hidePanel();
 			},
 		},
 		newQuestion: {
@@ -136,7 +137,10 @@
 		<a href="/panel/containers">
 			<i class="fa-solid fa-chevron-left" />
 		</a>
-		<span class="text-lg font-bold">Title of the survey</span>
+		<span
+			class="text-lg font-bold outline-none px-2 focus:outline-none hover:bg-fuchsia-100 max-w-xs truncate"
+			>{currentSurvey.name}</span
+		>
 
 		<button class="text-lg" title="Survey settings" on:click={() => showPanel("settings")}>
 			<i class="fa-solid fa-gear" />

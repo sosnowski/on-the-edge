@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SelectField, SurveyField } from "shared/models/survey";
+	import type { SelectField, SelectFieldOption, SurveyField } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 	import { fade } from "svelte/transition";
 	import { nanoid } from "nanoid";
@@ -7,10 +7,9 @@
 	export let field: SurveyField | undefined = undefined;
 	const dispatch = createEventDispatcher<{ save: SelectField }>();
 
-	let options: string[] = [""];
+	let options: SelectFieldOption[] = (field as SelectField)?.options || [{ label: "", value: "" }];
 
 	const onSubmit = (e: Event) => {
-		e.preventDefault();
 		console.log("submit");
 		const data = new FormData(e.target as HTMLFormElement);
 		const field: SelectField = {
@@ -19,8 +18,8 @@
 			autoSubmit: true,
 			options: options.map((opt, index) => {
 				return {
-					label: opt,
-					value: `option-${index}-${nanoid(10)}`,
+					label: opt.label,
+					value: opt.value || `option-${index}-${nanoid(10)}`,
 				};
 			}),
 		};
@@ -33,7 +32,7 @@
 	};
 
 	const addOption = () => {
-		options = [...options, ""];
+		options = [...options, { label: "", value: "" }];
 	};
 
 	const removeOption = (index: number) => {
@@ -69,7 +68,7 @@
 					name={`options[${i}]`}
 					id={`options[${i}]`}
 					class="field-std block flex-1"
-					bind:value={options[i]}
+					bind:value={options[i].label}
 				/>
 				<button
 					on:click={() => removeOption(i)}

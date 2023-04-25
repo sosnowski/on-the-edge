@@ -53,7 +53,7 @@
 	{#each fieldTypes as fieldType}
 		<button
 			on:click={() => onFieldTypeSelect(fieldType)}
-			class="relative grid grid-cols-[1fr_auto] grid-rows-[auto_1fr] gap-2 justify-items-start rounded-md bg-white p-4 shadow-md border"
+			class="relative grid grid-cols-[1fr_auto] grid-rows-[auto_1fr] gap-2 justify-items-start rounded-md bg-white p-4 shadow-md border hover:border-fuchsia-500"
 			class:border-fuchsia-500={selectedFieldType === fieldType.id}
 			class:border-slate-200={selectedFieldType !== fieldType.id}
 		>
