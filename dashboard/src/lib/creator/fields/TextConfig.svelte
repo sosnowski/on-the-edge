@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { nanoid } from "nanoid";
+	import { newEntityId } from "shared/models/base";
 	import type { SurveyQuestion, TextQuestion } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 
@@ -18,7 +18,7 @@
 		});
 
 		dispatch("save", {
-			id: question?.id || nanoid(30),
+			id: question?.id || newEntityId(),
 			type: "text",
 			label: data.get("label") as string,
 		});

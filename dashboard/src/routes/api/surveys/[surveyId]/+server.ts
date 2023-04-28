@@ -1,7 +1,6 @@
 import { json, type RequestHandler } from "@sveltejs/kit";
 import { getDb } from "$lib/db";
 import { saveSurveyInfo } from "db/surveys";
-import { nanoid } from "nanoid";
 import { SurveyInfo } from "shared/models/survey";
 
 export const PUT = (async ({ request }) => {

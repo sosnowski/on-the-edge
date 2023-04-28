@@ -2,7 +2,7 @@
 	import type { SelectQuestion, SelectQuestionOption, SurveyQuestion } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 	import { fade } from "svelte/transition";
-	import { nanoid } from "nanoid";
+	import { newEntityId } from "shared/models/base";
 
 	export let question: SurveyQuestion | undefined = undefined;
 	const dispatch = createEventDispatcher<{ save: SelectQuestion }>();
@@ -15,13 +15,13 @@
 		console.log("submit");
 		const data = new FormData(e.target as HTMLFormElement);
 		const field: SelectQuestion = {
-			id: question?.id || nanoid(30),
+			id: question?.id || newEntityId(),
 			type: "select",
 			label: data.get("label") as string,
 			options: options.map((opt, index) => {
 				return {
 					label: opt.label,
-					value: opt.value || `${nanoid(30)}`,
+					value: opt.value || newEntityId(),
 				};
 			}),
 		};

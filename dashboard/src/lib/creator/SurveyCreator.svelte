@@ -7,6 +7,7 @@
 	import SettingsForm from "./settings/SettingsForm.svelte";
 	import QuestionForm from "./fields/QuestionForm.svelte";
 	import type { Template } from "./templates/template";
+	import { newEntityId } from "shared/models/base";
 
 	export let survey: SurveyInfo;
 
@@ -25,7 +26,12 @@
 				console.log("ON TEMPLATE CHANGE", e.detail);
 				currentSurvey = {
 					...currentSurvey,
-					questions: e.detail.questions.slice(),
+					questions: e.detail.questions.map((question) => {
+						return {
+							...question,
+							id: newEntityId(),
+						};
+					}),
 				};
 				console.log("AFTER CHANGE", currentSurvey);
 				dirty = true;

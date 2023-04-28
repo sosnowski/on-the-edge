@@ -2,7 +2,6 @@
 	import { createEventDispatcher } from "svelte";
 	import type { Template } from "./template";
 	import templatesJson from "./templates.json";
-	import type { SurveyInfo } from "shared/models/survey";
 
 	const dispatch = createEventDispatcher<{
 		change: Template;

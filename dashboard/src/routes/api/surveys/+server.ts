@@ -1,10 +1,10 @@
 import { json, type RequestHandler } from "@sveltejs/kit";
-import { nanoid } from "nanoid";
+import { newEntityId } from "shared/models/base";
 
 export const POST = (async ({ request }) => {
 	// create default survey and return survey Id
 
 	return json({
-		surveyId: nanoid(),
+		surveyId: newEntityId(),
 	});
 }) satisfies RequestHandler;

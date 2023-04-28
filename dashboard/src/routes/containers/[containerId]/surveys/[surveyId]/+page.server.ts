@@ -1,9 +1,8 @@
 import { error, redirect } from "@sveltejs/kit";
 import { getDb } from "$lib/db";
 import { EntityId } from "shared/models/base";
-import { getAllSurveysByContainer, createDefaultSurvey, getSurveyInfoById } from "db/surveys";
+import { createDefaultSurvey, getSurveyInfoById } from "db/surveys";
 import type { PageServerLoad } from "./$types";
-import { nanoid } from "nanoid";
 
 export const load = (async ({ params }) => {
 	const containerId = EntityId.parse(params.containerId);
