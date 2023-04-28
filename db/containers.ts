@@ -1,19 +1,20 @@
 import { Db } from "./client";
 import { Container } from "shared/models/container";
+import { fromDbRecord, toDbRecord } from "./helper";
 
 export const getAllContainers = async (db: Db): Promise<Container[]> => {
     console.log("Executing SELECT * query");
-    const res = await db
+    const { data, error } = await db
         .from("containers")
         .select()
         .order("created", { ascending: false });
 
-    console.log(res);
-    // if (res.status !== 200) {
-    //     console.error(res);
-    //     throw new Error("Error fetching containers");
-    // }
-    return (res.data || []).map((row) => Container.parse(row));
+    if (error) {
+        console.error(error);
+        throw new Error("Error fetching containers");
+    }
+
+    return (data || []).map((row) => Container.parse(fromDbRecord(row)));
 };
 
 export const createContainer = async (
@@ -21,9 +22,12 @@ export const createContainer = async (
     container: Pick<Container, "name" | "description">
 ): Promise<Container | null> => {
     console.log("Executing INSERT query");
-    const res = await db.from("containers").insert(container).select();
+    const res = await db
+        .from("containers")
+        .insert(toDbRecord(container))
+        .select();
 
     return res.data && res.data.length > 0
-        ? Container.parse(res.data[0])
+        ? Container.parse(fromDbRecord(res.data[0]))
         : null;
 };

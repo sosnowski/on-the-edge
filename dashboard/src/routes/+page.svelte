@@ -1,3 +1,3 @@
 Hello
 
-<a href="/panel/containers">Containers</a>
+<a href="/containers">Containers</a>

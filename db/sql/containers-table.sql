@@ -1,10 +1,10 @@
 DROP TABLE IF EXISTS containers;
 
 CREATE TABLE containers (
-	containerId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
-	description VARCHAR(200),
+	id VARCHAR(30) NOT NULL PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	description VARCHAR(300),
 	
-	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	created timestamp with time zone default timezone('utc'::text, now()) not null,
+	updated timestamp with time zone default timezone('utc'::text, now()) not null
 );

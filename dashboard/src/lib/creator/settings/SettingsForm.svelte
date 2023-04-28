@@ -1,5 +1,11 @@
 <script lang="ts">
-	import type { OnLoadTrigger, SurveyInfo, SurveyTrigger } from "shared/models/survey";
+	import type {
+		OnClickTrigger,
+		OnLoadTrigger,
+		SurveyDisplayType,
+		SurveyInfo,
+		SurveyTrigger,
+	} from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 
 	export let survey: SurveyInfo;
@@ -8,9 +14,10 @@
 	}>();
 
 	let triggerType = survey.triggerConfig.type;
+	let displayType = survey.displayType;
 	let delay = (survey.triggerConfig as OnLoadTrigger).delay || 0;
 	let pageRegex = (survey.triggerConfig as OnLoadTrigger).pageRegex || "";
-	let selector = (survey.triggerConfig as OnLoadTrigger).selector || "";
+	let selector = (survey.triggerConfig as OnClickTrigger).selector || "";
 
 	const onSubmit = (e: Event) => {
 		console.log("submit");
@@ -44,6 +51,7 @@
 
 		const result: Partial<SurveyInfo> = {
 			name: data.get("name") as string,
+			displayType: data.get("displayType") as SurveyDisplayType,
 			triggerConfig: triggerConfig,
 		};
 
@@ -65,6 +73,18 @@
 			placeholder="My awesome survey"
 			value={survey.name || ""}
 		/>
+
+		<label for="displayType" class="block w-full leading-6 text-slate-700 mt-4">Display Type</label>
+		<select
+			name="displayType"
+			id="displayType"
+			class="field-std block w-full"
+			bind:value={displayType}
+		>
+			<option value="fab">Floating Action Button</option>
+			<option value="modal">Modal Popup</option>
+			<option value="toast">Toast panel</option>
+		</select>
 
 		<label for="trigger" class="block w-full leading-6 text-slate-700 mt-4">Trigger type</label>
 		<select name="trigger" id="trigger" class="field-std block w-full" bind:value={triggerType}>

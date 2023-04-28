@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { SurveyField } from "shared/models/survey";
+    import { SurveyQuestion } from "shared/models/survey";
     import { createEventDispatcher } from "svelte";
 
-    export let field: SurveyField;
+    export let question: SurveyQuestion;
 
     const dispatch = createEventDispatcher<{
         submit: string;
@@ -16,7 +16,7 @@
 </script>
 
 <div class="flex flex-col gap-4 w-full h-full justify-start items-center">
-    <p class="text-center text-slate-800 text-lg">{field.label}</p>
+    <p class="text-center text-slate-800 text-lg">{question.label}</p>
 
     <form class="contents" on:submit|preventDefault={onSubmit}>
         <textarea

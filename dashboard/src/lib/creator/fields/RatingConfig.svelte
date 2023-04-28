@@ -1,9 +1,10 @@
 <script lang="ts">
-	import type { RatingField, SurveyField } from "shared/models/survey";
+	import { nanoid } from "nanoid";
+	import type { RatingQuestion, SurveyQuestion } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 
-	export let field: SurveyField | undefined = undefined;
-	const dispatch = createEventDispatcher<{ save: RatingField }>();
+	export let question: SurveyQuestion | undefined = undefined;
+	const dispatch = createEventDispatcher<{ save: RatingQuestion }>();
 
 	const onSubmit = (e: Event) => {
 		console.log("submit");
@@ -12,13 +13,12 @@
 		console.log({
 			type: "rating",
 			label: data.get("label") as string,
-			autoSubmit: true,
 		});
 
 		dispatch("save", {
+			id: question?.id || nanoid(30),
 			type: "rating",
 			label: data.get("label") as string,
-			autoSubmit: true,
 		});
 	};
 </script>
@@ -32,7 +32,7 @@
 			required
 			class="field-std block w-full"
 			placeholder="How do you rate your experience?"
-			value={field?.label || ""}
+			value={question?.label || ""}
 		/>
 
 		<button type="submit" class="btn-primary w-1/3 self-center my-4">Save</button>

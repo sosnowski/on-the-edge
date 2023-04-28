@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { SurveyField } from "shared/models/survey";
+    import { SurveyQuestion } from "shared/models/survey";
     import { createEventDispatcher } from "svelte";
 
-    export let field: SurveyField;
+    export let question: SurveyQuestion;
 
     const dispatch = createEventDispatcher<{
         submit: number;
@@ -22,7 +22,7 @@
 </script>
 
 <div class="flex flex-col gap-4 w-full h-full">
-    <p class="text-center text-slate-800 text-lg">{field.label}</p>
+    <p class="text-center text-slate-800 text-lg">{question.label}</p>
     <div class="flex flex-row gap-5 justify-center items-center text-3xl">
         {#each options as option}
             <button

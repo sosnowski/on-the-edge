@@ -1,9 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import type { SurveyField, SurveyInfo } from "shared/models/survey";
-    import RatingField from "./fields/Rating.svelte";
-    import TextField from "./fields/Text.svelte";
-    import SelectField from "./fields/Select.svelte";
+    import type { SurveyQuestion, SurveyInfo } from "shared/models/survey";
+    import RatingField from "./questions/Rating.svelte";
+    import TextField from "./questions/Text.svelte";
+    import SelectField from "./questions/Select.svelte";
 
     export let survey: SurveyInfo;
     export let page: number;
@@ -12,8 +12,8 @@
         submit: unknown;
     }>();
 
-    const getCmp = (field: SurveyField) => {
-        switch (field.type) {
+    const getCmp = (question: SurveyQuestion) => {
+        switch (question.type) {
             case "rating":
                 return RatingField;
             case "text":
@@ -25,15 +25,15 @@
         }
     };
 
-    $: currentField = survey.fields[page] || null;
-    $: currentFieldCmp = getCmp(currentField);
+    $: currentQuestion = survey.questions[page] || null;
+    $: currentQuestionCmp = getCmp(currentQuestion);
 
     $: {
         console.log("CURRENT SURVEY FIELD");
-        console.log(currentField);
+        console.log(currentQuestion);
     }
 
-    const onValueChange = (field: SurveyField, event: CustomEvent) => {
+    const onValueChange = (field: SurveyQuestion, event: CustomEvent) => {
         // console.log(`Value change for ${field} - ${event.detail}`);
         // pageData[field.id] = event.detail;
         // console.log(pageData);
@@ -69,11 +69,11 @@
 </script>
 
 <div class="w-full flex flex-col justify-center items-center p-6">
-    {#if currentField}
+    {#if currentQuestion}
         <svelte:component
-            this={currentFieldCmp}
-            field={currentField}
-            on:submit={(event) => onValueChange(currentField, event)}
+            this={currentQuestionCmp}
+            question={currentQuestion}
+            on:submit={(event) => onValueChange(currentQuestion, event)}
         />
     {/if}
 </div>

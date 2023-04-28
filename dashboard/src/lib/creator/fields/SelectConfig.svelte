@@ -1,25 +1,27 @@
 <script lang="ts">
-	import type { SelectField, SelectFieldOption, SurveyField } from "shared/models/survey";
+	import type { SelectQuestion, SelectQuestionOption, SurveyQuestion } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 	import { fade } from "svelte/transition";
 	import { nanoid } from "nanoid";
 
-	export let field: SurveyField | undefined = undefined;
-	const dispatch = createEventDispatcher<{ save: SelectField }>();
+	export let question: SurveyQuestion | undefined = undefined;
+	const dispatch = createEventDispatcher<{ save: SelectQuestion }>();
 
-	let options: SelectFieldOption[] = (field as SelectField)?.options || [{ label: "", value: "" }];
+	let options: SelectQuestionOption[] = (question as SelectQuestion)?.options || [
+		{ label: "", value: "" },
+	];
 
 	const onSubmit = (e: Event) => {
 		console.log("submit");
 		const data = new FormData(e.target as HTMLFormElement);
-		const field: SelectField = {
+		const field: SelectQuestion = {
+			id: question?.id || nanoid(30),
 			type: "select",
 			label: data.get("label") as string,
-			autoSubmit: true,
 			options: options.map((opt, index) => {
 				return {
 					label: opt.label,
-					value: opt.value || `option-${index}-${nanoid(10)}`,
+					value: opt.value || `${nanoid(30)}`,
 				};
 			}),
 		};
@@ -50,7 +52,7 @@
 			required
 			class="field-std block w-full"
 			placeholder="How do you rate your experience?"
-			value={field?.label || ""}
+			value={question?.label || ""}
 		/>
 
 		<label for="options[0]" class="block w-full leading-6 text-slate-700 mt-4"

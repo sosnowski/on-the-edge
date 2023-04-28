@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { FieldType, SurveyField } from "shared/models/survey";
+	import type { QuestionType, SurveyQuestion } from "shared/models/survey";
 	import { createEventDispatcher } from "svelte";
 	import RatingConfig from "./RatingConfig.svelte";
 	import TextConfig from "./TextConfig.svelte";
 	import SelectConfig from "./SelectConfig.svelte";
 
-	export let field: SurveyField | undefined = undefined;
+	export let question: SurveyQuestion | undefined = undefined;
 
 	const dispatch = createEventDispatcher<{
-		change: SurveyField;
+		change: SurveyQuestion;
 	}>();
 
 	type FieldTypeInfo = {
-		id: FieldType;
+		id: QuestionType;
 		name: string;
 		description: string;
 	};
@@ -35,14 +35,14 @@
 		},
 	];
 
-	let selectedFieldType: FieldType | undefined = field?.type || undefined;
+	let selectedFieldType: QuestionType | undefined = question?.type || undefined;
 
 	const onFieldTypeSelect = (fieldType: FieldTypeInfo) => {
 		console.log(fieldType);
 		selectedFieldType = fieldType.id;
 	};
 
-	const onFieldSave = (event: CustomEvent<SurveyField>) => {
+	const onFieldSave = (event: CustomEvent<SurveyQuestion>) => {
 		console.log("Field saved");
 		console.log(event.detail);
 		dispatch("change", event.detail);
@@ -70,9 +70,9 @@
 </div>
 
 {#if selectedFieldType === "rating"}
-	<RatingConfig {field} on:save={onFieldSave} />
+	<RatingConfig {question} on:save={onFieldSave} />
 {:else if selectedFieldType === "text"}
-	<TextConfig {field} on:save={onFieldSave} />
+	<TextConfig {question} on:save={onFieldSave} />
 {:else if selectedFieldType === "select"}
-	<SelectConfig {field} on:save={onFieldSave} />
+	<SelectConfig {question} on:save={onFieldSave} />
 {/if}

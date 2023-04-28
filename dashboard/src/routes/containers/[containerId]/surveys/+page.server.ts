@@ -5,7 +5,7 @@ import { getAllSurveysByContainer } from "db/surveys";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async ({ params }) => {
-	const containerId = EntityId.parse(+params.containerId);
+	const containerId = EntityId.parse(params.containerId);
 	let surveys = [];
 	try {
 		console.log("Getting all containers");

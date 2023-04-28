@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { EntityId } from "./base";
 
-// export const SurveyType = z.enum(["fixed", "modal"]);
+export const SurveyDisplayType = z.enum(["fab", "modal", "toast"]); //FAB: Floating Action Button
 export const SurveyStatus = z.enum(["active", "paused"]);
-export const FieldType = z.enum(["text", "rating", "select"]);
+export const QuestionType = z.enum(["text", "rating", "select"]);
 
 export const OnLoadTrigger = z.object({
     type: z.literal("onload"),
@@ -31,60 +31,64 @@ export const Survey = z.object({
     id: EntityId.optional(),
     containerId: EntityId,
     name: z.string(),
-    display: z.enum(["always", "user", "session"]),
     status: z.enum(["active", "inactive"]),
+    displayType: SurveyDisplayType,
     triggerConfig: SurveyTrigger,
 });
 
-const BaseField = z.object({
+const BaseQuestion = z.object({
     id: EntityId.optional(),
     label: z.string(),
-    type: FieldType,
-    autoSubmit: z.boolean().optional(),
+    type: QuestionType,
+    order: z.number().optional(),
 });
 
-export const TextField = BaseField.extend({
+export const TextQuestion = BaseQuestion.extend({
     type: z.literal("text"),
 });
 
-export const RatingField = BaseField.extend({
+export const RatingQuestion = BaseQuestion.extend({
     type: z.literal("rating"),
 });
 
-export const SelectFieldOption = z.object({
+export const SelectQuestionOption = z.object({
     label: z.string(),
     value: z.string(),
 });
 
-export const SelectField = BaseField.extend({
+export const SelectQuestion = BaseQuestion.extend({
     type: z.literal("select"),
-    options: z.array(SelectFieldOption),
+    options: z.array(SelectQuestionOption),
 });
 
-export const SurveyField = z.union([TextField, RatingField, SelectField]);
+export const SurveyQuestion = z.union([
+    TextQuestion,
+    RatingQuestion,
+    SelectQuestion,
+]);
 
 export const SurveyMetadata = z.object({
     surveyId: EntityId,
-    display: Survey.shape.display,
+    displayType: Survey.shape.displayType,
     status: Survey.shape.status,
     triggerConfig: SurveyTrigger,
 });
 
 export const SurveyInfo = Survey.extend({
-    fields: z.array(SurveyField),
+    questions: z.array(SurveyQuestion),
 });
 
-// export type SurveyType = z.infer<typeof SurveyType>;
 export type SurveyStatus = z.infer<typeof SurveyStatus>;
-export type FieldType = z.infer<typeof FieldType>;
+export type QuestionType = z.infer<typeof QuestionType>;
 export type OnLoadTrigger = z.infer<typeof OnLoadTrigger>;
 export type OnClickTrigger = z.infer<typeof OnClickTrigger>;
 export type SurveyTrigger = z.infer<typeof SurveyTrigger>;
 export type Survey = z.infer<typeof Survey>;
-export type TextField = z.infer<typeof TextField>;
-export type RatingField = z.infer<typeof RatingField>;
-export type SelectFieldOption = z.infer<typeof SelectFieldOption>;
-export type SelectField = z.infer<typeof SelectField>;
-export type SurveyField = z.infer<typeof SurveyField>;
+export type TextQuestion = z.infer<typeof TextQuestion>;
+export type RatingQuestion = z.infer<typeof RatingQuestion>;
+export type SelectQuestionOption = z.infer<typeof SelectQuestionOption>;
+export type SelectQuestion = z.infer<typeof SelectQuestion>;
+export type SurveyQuestion = z.infer<typeof SurveyQuestion>;
 export type SurveyMetadata = z.infer<typeof SurveyMetadata>;
 export type SurveyInfo = z.infer<typeof SurveyInfo>;
+export type SurveyDisplayType = z.infer<typeof SurveyDisplayType>;

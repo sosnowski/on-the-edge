@@ -9,7 +9,6 @@ CREATE TABLE responses (
 	surveyId INT NOT NULL,
 	fieldId INT NOT NULL,
 	sessionToken CHAR(30) NOT NULL,
-	fieldType FieldType NOT NULL,
 	content TEXT NULL,
 
 	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

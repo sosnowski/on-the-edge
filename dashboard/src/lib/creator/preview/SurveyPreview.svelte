@@ -25,7 +25,7 @@
 	};
 
 	const onNextPage = () => {
-		if (page < survey.fields.length - 1) {
+		if (page < survey.questions.length - 1) {
 			dispatch("page", page + 1);
 		}
 	};
@@ -36,11 +36,11 @@
 </script>
 
 <div class="absolute inset-0 overflow-hidden flex justify-center items-center">
-	<div class="grid grid-cols-[auto_1fr_auto_auto] grid-rows-[1fr_auto] w-full max-w-xl gap-4">
+	<div class="grid grid-cols-[auto_1fr_auto_auto] grid-rows-[1fr_auto] w-full max-w-2xl gap-4">
 		<div
 			class="col-start-2 row-start-1 overflow-hidden rounded-lg bg-white text-left shadow-lg transition-all"
 		>
-			{#if survey.fields.length > 0}
+			{#if survey.questions.length > 0}
 				<SurveyForm {survey} {page} on:submit={onFormSubmit} />
 			{:else}
 				<div class="text-center p-4">
@@ -65,7 +65,7 @@
 			<button
 				title="Next question"
 				on:click={onNextPage}
-				disabled={page >= survey.fields.length - 1}
+				disabled={page >= survey.questions.length - 1}
 				class="bg-white text-2xl text-fuchsia-500 rounded-md shadow-md p-4 opacity-90 hover:opacity-100 disabled:opacity-20"
 			>
 				<i class="fa-solid fa-chevron-right" />
@@ -88,13 +88,13 @@
 				on:click={() => dispatch("edit")}
 				title="Edit the question"
 				class="btn-std w-10 h-10 flex justify-center items-center disabled:opacity-20 disabled:cursor-default"
-				disabled={survey.fields.length === 0}><i class="fa-solid fa-pen" /></button
+				disabled={survey.questions.length === 0}><i class="fa-solid fa-pen" /></button
 			>
 			<button
 				on:click={() => dispatch("delete")}
 				title="Delete the question"
 				class="btn-std w-10 h-10 flex justify-center items-center disabled:opacity-20 disabled:cursor-default"
-				disabled={survey.fields.length === 0}><i class="fa-regular fa-trash-can" /></button
+				disabled={survey.questions.length === 0}><i class="fa-regular fa-trash-can" /></button
 			>
 		</div>
 	</div>

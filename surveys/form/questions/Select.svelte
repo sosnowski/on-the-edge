@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { SelectField, SurveyField } from "shared/models/survey";
+    import { SelectQuestion, SurveyQuestion } from "shared/models/survey";
     import { createEventDispatcher } from "svelte";
 
-    export let field: SelectField;
+    export let question: SelectQuestion;
 
     const dispatch = createEventDispatcher<{
         submit: string;
@@ -16,7 +16,7 @@
 </script>
 
 <div class="flex flex-col gap-4 w-full h-full justify-start items-center">
-    <p class="text-center text-slate-800 text-lg">{field.label}</p>
+    <p class="text-center text-slate-800 text-lg">{question.label}</p>
 
     <form class="contents" on:submit|preventDefault={onSubmit}>
         <select
@@ -24,7 +24,7 @@
             name="response"
         >
             <option value="" disabled selected>Select an option</option>
-            {#each field.options as option}
+            {#each question.options as option}
                 <option value={option.value}>{option.label}</option>
             {/each}
         </select>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SurveyField, SurveyInfo } from "shared/models/survey";
+	import type { SurveyQuestion, SurveyInfo } from "shared/models/survey";
 	import SideBar from "./SideBar.svelte";
 	import SurveyPreview from "./preview/SurveyPreview.svelte";
 
@@ -8,23 +8,15 @@
 	import QuestionForm from "./fields/QuestionForm.svelte";
 	import type { Template } from "./templates/template";
 
-	const initialSurvey: SurveyInfo = {
-		id: 1,
-		containerId: 1,
-		name: "Survey name",
-		display: "always",
-		status: "active",
-		triggerConfig: {
-			type: "fixed",
-		},
-		fields: [],
-	} satisfies SurveyInfo;
+	export let survey: SurveyInfo;
 
 	let currentSurvey: SurveyInfo = {
-		...initialSurvey,
+		...survey,
 	};
 
 	let currentPage: number = 0;
+	let saveTimer: any | undefined = undefined;
+	let dirty: boolean = false;
 
 	const sideBarPanels = {
 		templates: {
@@ -33,9 +25,10 @@
 				console.log("ON TEMPLATE CHANGE", e.detail);
 				currentSurvey = {
 					...currentSurvey,
-					fields: e.detail.fields.slice(),
+					questions: e.detail.questions.slice(),
 				};
 				console.log("AFTER CHANGE", currentSurvey);
+				dirty = true;
 				hidePanel();
 			},
 		},
@@ -47,43 +40,45 @@
 					...currentSurvey,
 					...e.detail,
 				};
+				dirty = true;
 				hidePanel();
 			},
 		},
 		newQuestion: {
 			title: "Add new question",
-			onChange: (e: CustomEvent<SurveyField>) => {
+			onChange: (e: CustomEvent<SurveyQuestion>) => {
 				console.log("New Question", e.detail);
-				const fields = currentSurvey.fields;
-				if (currentPage < fields.length - 1) {
-					fields.splice(currentPage + 1, 0, e.detail);
+				const questions = currentSurvey.questions;
+				if (currentPage < questions.length - 1) {
+					questions.splice(currentPage + 1, 0, e.detail);
 				} else {
-					fields.push(e.detail);
+					questions.push(e.detail);
 				}
 
 				currentSurvey = {
 					...currentSurvey,
-					fields,
+					questions,
 				};
 
-				if (currentPage < fields.length - 1) {
+				if (currentPage < questions.length - 1) {
 					currentPage = currentPage + 1;
 				}
-
+				dirty = true;
 				hidePanel();
 			},
 		},
 		editQuestion: {
 			title: "Edit question",
-			onChange: (e: CustomEvent<SurveyField>) => {
+			onChange: (e: CustomEvent<SurveyQuestion>) => {
 				console.log("ON FIELD EDIT", e.detail);
-				const fields = currentSurvey.fields;
-				fields[currentPage] = e.detail;
+				const questions = currentSurvey.questions;
+				questions[currentPage] = e.detail;
 
 				currentSurvey = {
 					...currentSurvey,
-					fields,
+					questions,
 				};
+				dirty = true;
 				hidePanel();
 			},
 		},
@@ -108,25 +103,50 @@
 	};
 
 	const onDeleteQuestion = (e: CustomEvent<void>) => {
-		const fields = currentSurvey.fields;
-		fields.splice(currentPage, 1);
+		const questions = currentSurvey.questions;
+		questions.splice(currentPage, 1);
 
 		currentSurvey = {
 			...currentSurvey,
-			fields,
+			questions,
 		};
 
 		if (currentPage > 0) {
 			currentPage = currentPage - 1;
 		}
+		dirty = true;
 	};
 
 	const onPageChange = (e: CustomEvent<number>) => {
 		currentPage = e.detail;
 	};
 
+	const saveSurvey = async (survey: SurveyInfo) => {
+		if (saveTimer) {
+			clearTimeout(saveTimer);
+		}
+		saveTimer = setTimeout(async () => {
+			console.log("SAVING SURVEY", survey);
+			const res = await fetch(`/api/surveys/${survey.id}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(survey),
+			});
+			console.log("SAVE RESPONSE", res);
+			console.log(res.status, res.statusText);
+			dirty = false;
+		}, 1000);
+	};
+
 	$: {
 		console.log("SURVEY UPDATED", currentSurvey);
+		if (dirty) {
+			console.log("IS DIRTY");
+			saveSurvey(currentSurvey);
+			dirty = false;
+		}
 	}
 </script>
 
@@ -134,11 +154,10 @@
 	<header
 		class="absolute z-10 flex flex-row justify-center items-center gap-6 bg-white shadow-md top-4 left-4 py-2 px-4 border border-slate-100 rounded-md"
 	>
-		<a href="/panel/containers">
+		<a href={`/containers/${currentSurvey.containerId}/surveys`}>
 			<i class="fa-solid fa-chevron-left" />
 		</a>
-		<span
-			class="text-lg font-bold outline-none px-2 focus:outline-none hover:bg-fuchsia-100 max-w-xs truncate"
+		<span class="text-lg font-bold outline-none px-2 focus:outline-none max-w-xs truncate"
 			>{currentSurvey.name}</span
 		>
 
@@ -169,7 +188,7 @@
 				<QuestionForm on:change={sideBarPanels.newQuestion.onChange} />
 			{:else if currentSideBarPanel === "editQuestion"}
 				<QuestionForm
-					field={currentSurvey.fields[currentPage]}
+					question={currentSurvey.questions[currentPage]}
 					on:change={sideBarPanels.editQuestion.onChange}
 				/>
 			{/if}
