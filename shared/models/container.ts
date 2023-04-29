@@ -6,7 +6,7 @@ export const Container = z.object({
     id: EntityId.optional(),
     name: z.string(),
     description: z.string(),
-    domain: z.string().optional(),
+    domains: z.array(z.string()),
     created: z.string().optional(),
     updated: z.string().optional(),
 });

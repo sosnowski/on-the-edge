@@ -4,9 +4,9 @@ CREATE type QuestionType as ENUM ('text', 'rating', 'select');
 
 
 CREATE TABLE questions (
-  id VARCHAR(30) NOT NULL primary key,
-  survey_id VARCHAR(30) not null,
-  label VARCHAR(200) NOT NULL,
+  id EntityId NOT NULL primary key,
+  survey_id EntityId not null,
+  label TEXT NOT NULL,
   type QuestionType NOT NULL,
   "order" SMALLINT NOT NULL,
   config JSON NULL,
@@ -14,6 +14,6 @@ CREATE TABLE questions (
   updated timestamp with time zone default timezone('utc'::text, now()) not null,
 
   CONSTRAINT fkSurvey
-      FOREIGN KEY(surveyId) 
+      FOREIGN KEY(survey_id) 
       REFERENCES surveys(id)
 );

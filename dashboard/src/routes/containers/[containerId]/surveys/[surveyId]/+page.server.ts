@@ -8,28 +8,14 @@ export const load = (async ({ params }) => {
 	const containerId = EntityId.parse(params.containerId);
 	const db = getDb();
 
-	if (params.surveyId === "create") {
-		// create default survey and redirect to it
-		// console.log("CREATE NEW SURVEY");
-		// let surveyId;
-		// try {
-		// 	surveyId = await createDefaultSurvey(db, containerId);
-		// 	console.log("NEW SURVEY ID: ", surveyId);
-		// } catch (err) {
-		// 	console.error(err);
-		// 	throw error(500, "Internal server error");
-		// }
-		// throw redirect(303, `/containers/${containerId}/surveys/${surveyId}`);
-	} else {
-		const surveyId = EntityId.parse(params.surveyId);
-		const survey = getSurveyInfoById(db, surveyId);
+	const surveyId = EntityId.parse(params.surveyId);
+	const survey = getSurveyInfoById(db, surveyId);
 
-		if (!survey) {
-			throw error(404, "Survey not found");
-		}
-
-		return {
-			survey: survey,
-		};
+	if (!survey) {
+		throw error(404, "Survey not found");
 	}
+
+	return {
+		survey: survey,
+	};
 }) satisfies PageServerLoad;

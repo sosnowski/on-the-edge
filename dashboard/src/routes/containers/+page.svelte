@@ -66,7 +66,7 @@
 						<circle cx="1" cy="1" r="1" />
 					</svg>
 					<p class="whitespace-nowrap">
-						{container.domain || "-"}
+						{container.domains.join(", ") || "-"}
 					</p>
 				</div>
 			</div>

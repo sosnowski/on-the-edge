@@ -29,11 +29,14 @@
 
 	const onSubmit = async (e: Event) => {
 		console.log("submit");
-		const data = new FormData(e.target as HTMLFormElement);
+		const data = Object.fromEntries(new FormData(e.target as HTMLFormElement).entries());
 
-		console.log(Object.fromEntries(data.entries()));
+		console.log(data);
 
-		const newContainer = Container.parse(Object.fromEntries(data.entries()));
+		const newContainer = Container.parse({
+			...data,
+			domains: (data.domains as string).split(",").map((d: string) => d.trim()),
+		});
 		await saveContainer(newContainer);
 	};
 </script>
@@ -50,17 +53,17 @@
 			class="field-std"
 			value={container?.name || ""}
 		/>
-		<label for="domain" class="block w-full leading-6 text-slate-700 mt-4"
+		<label for="domains" class="block w-full leading-6 text-slate-700 mt-4"
 			>Domain <i class="fa-regular fa-circle-question text-fuchsia-500 cursor-pointer" /></label
 		>
 		<input
 			type="text"
-			name="domain"
-			id="domain"
+			name="domains"
+			id="domains"
 			required
 			placeholder="blog.mydomain.com"
 			class="field-std"
-			value={container?.domain || ""}
+			value={container?.domains.join(", ") || ""}
 		/>
 		<label for="description" class="block w-full leading-6 text-slate-700 mt-4">Description</label>
 		<textarea

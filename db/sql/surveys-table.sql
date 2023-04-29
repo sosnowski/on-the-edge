@@ -5,9 +5,9 @@ CREATE type SurveyStatus as ENUM ('active', 'inactive');
 
 
 CREATE TABLE surveys (
-  id VARCHAR(30) NOT NULL primary key,
-  container_id VARCHAR(30) not null,
-  name VARCHAR(100) NOT NULL,
+  id EntityId NOT NULL primary key,
+  container_id EntityId not null,
+  name TEXT NOT NULL,
   display_type SurveyDisplayType NOT NULL,
   status SurveyStatus NOT NULL,
   trigger_config JSON NOT NULL,
