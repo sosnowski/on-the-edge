@@ -3,12 +3,12 @@ import { EntityId, Token } from "./base";
 import { SurveyMetadata } from "./survey";
 
 export const Container = z.object({
-    id: EntityId,
+    id: EntityId.optional(),
     name: z.string(),
     description: z.string(),
-    surveysCount: z.number().min(0).optional(),
-    created: z.string(),
-    updated: z.string(),
+    domain: z.string().optional(),
+    created: z.string().optional(),
+    updated: z.string().optional(),
 });
 
 export const ContainerInfo = z.object({

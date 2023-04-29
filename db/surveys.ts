@@ -7,12 +7,12 @@ export const getAllSurveysByContainer = async (
     db: Db,
     containerId: string
 ): Promise<Survey[]> => {
-    console.log("Executing SELECT * query");
+    console.log("Executing getAllSurveysByContainer query");
     const { data, error } = await db
         .from("surveys")
         .select()
         .eq("container_id", containerId)
-        .order("created", { ascending: false });
+        .order("updated", { ascending: false });
 
     if (error) {
         console.error(error);
@@ -56,10 +56,14 @@ export const getSurveyInfoById = async (
     console.log("GET SURVEY INFO BY ID " + surveyId);
 
     const res = await Promise.all([
-        db.from("surveys").select().eq("id", surveyId).single(),
+        db
+            .from("surveys")
+            .select("*, containers(name)")
+            .eq("id", surveyId)
+            .single(),
         db
             .from("questions")
-            .select()
+            .select("*")
             .eq("survey_id", surveyId)
             .order("order", { ascending: true }),
     ]);
@@ -75,18 +79,17 @@ export const getSurveyInfoById = async (
         return null;
     }
 
-    const survey = Survey.parse(fromDbRecord(res[0].data));
-    const questions = res[1].data?.map((row) => {
-        if (row.type === "select") {
-            row.options = row.config?.options || [];
-        }
-        return SurveyQuestion.parse(fromDbRecord(row));
+    return SurveyInfo.parse({
+        ...fromDbRecord<Survey>(res[0].data),
+        containerName: res[0].data.containers?.name,
+        questions:
+            res[1].data?.map((row) => {
+                if (row.type === "select") {
+                    row.options = row.config?.options || [];
+                }
+                return fromDbRecord(row);
+            }) || [],
     });
-
-    return {
-        ...survey,
-        questions: questions || [],
-    };
 };
 
 export const saveSurveyInfo = async (
@@ -99,7 +102,7 @@ export const saveSurveyInfo = async (
 
     const saveSurvey = db
         .from("surveys")
-        .update(toDbRecord(survey))
+        .update(toDbRecord(survey, ["containerName"]))
         .eq("id", survey.id);
 
     const questionsRecords = questions.map((q, index) => {

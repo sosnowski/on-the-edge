@@ -34,6 +34,9 @@ export const Survey = z.object({
     status: z.enum(["active", "inactive"]),
     displayType: SurveyDisplayType,
     triggerConfig: SurveyTrigger,
+
+    updated: z.string().optional(),
+    created: z.string().optional(),
 });
 
 const BaseQuestion = z.object({
@@ -75,6 +78,7 @@ export const SurveyMetadata = z.object({
 });
 
 export const SurveyInfo = Survey.extend({
+    containerName: z.string().optional(),
     questions: z.array(SurveyQuestion),
 });
 

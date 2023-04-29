@@ -1,76 +1,75 @@
 <script lang="ts">
-import { createEventDispatcher } from "svelte";
-import type { ActionData } from './$types';
+	import { Container } from "shared/models/container";
+	import { createEventDispatcher } from "svelte";
 
-export let form: ActionData;
+	export let container: Container | undefined = undefined;
+	const dispatch = createEventDispatcher<{
+		save: Container;
+	}>();
 
-const dispatch = createEventDispatcher<{
-	cancel: {};
-}>();
+	const saveContainer = async (newContainer: Container) => {
+		console.log("SAVE CONTAINER");
+		const isEdit = !!container;
 
+		const res = await fetch(isEdit ? `/api/containers/${container?.id}` : "/api/containers", {
+			method: isEdit ? "PUT" : "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(newContainer),
+		});
 
+		console.log("SAVE RESPONSE", res.status, res);
+		if (res.ok) {
+			dispatch("save", newContainer);
+		} else {
+			console.error("Failed to save container", res);
+		}
+	};
 
+	const onSubmit = async (e: Event) => {
+		console.log("submit");
+		const data = new FormData(e.target as HTMLFormElement);
 
+		console.log(Object.fromEntries(data.entries()));
+
+		const newContainer = Container.parse(Object.fromEntries(data.entries()));
+		await saveContainer(newContainer);
+	};
 </script>
 
-<div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-	<!--
-	  Background backdrop, show/hide based on modal state.
-  
-	  Entering: "ease-out duration-300"
-		From: "opacity-0"
-		To: "opacity-100"
-	  Leaving: "ease-in duration-200"
-		From: "opacity-100"
-		To: "opacity-0"
-	-->
-	<div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-  
-	<div class="fixed inset-0 z-10 overflow-y-auto">
-	  <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-		<!--
-		  Modal panel, show/hide based on modal state.
-  
-		  Entering: "ease-out duration-300"
-			From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-			To: "opacity-100 translate-y-0 sm:scale-100"
-		  Leaving: "ease-in duration-200"
-			From: "opacity-100 translate-y-0 sm:scale-100"
-			To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-		-->
-		
-			<div class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-				{#if form?.success}
-					<p class="text-center">Container saved!</p>
-					<button on:click={() => dispatch('cancel')} type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Close</button>
-				{:else}
-				<form method="post" action="/containers">
-					<div class="mt-3 text-center sm:mt-5">
-						<h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Add new container</h3>
-						<div class="mt-2">
-							
-							<label for="name" class="block text-sm font-medium leading-6 text-gray-900">Container name</label>
-								<div class="mt-2">
-								<input type="text" name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Cool container">
-								</div>
-						</div>
-						<div class="mt-2">
-							<label for="description" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
-							<div class="mt-2">
-							  <textarea rows="4" name="description" id="description" class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:py-1.5 sm:text-sm sm:leading-6"></textarea>
-							</div>
-						  </div>
-					</div>
-					
-					<div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-						<button type="submit" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2">Save</button>
-						<button on:click={() => dispatch('cancel')} type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Close</button>
-					</div>
-			
-				</form>
-			{/if}
-			</div>
-	  </div>
-	</div>
-  </div>
-  
+<div class="flex flex-col gap-2 h-full">
+	<form method="post" class="contents" on:submit|preventDefault={onSubmit}>
+		<label for="name" class="block w-full leading-6 text-slate-700 mt-4">Container name</label>
+		<input
+			type="text"
+			name="name"
+			id="name"
+			required
+			placeholder="Cool container"
+			class="field-std"
+			value={container?.name || ""}
+		/>
+		<label for="domain" class="block w-full leading-6 text-slate-700 mt-4"
+			>Domain <i class="fa-regular fa-circle-question text-fuchsia-500 cursor-pointer" /></label
+		>
+		<input
+			type="text"
+			name="domain"
+			id="domain"
+			required
+			placeholder="blog.mydomain.com"
+			class="field-std"
+			value={container?.domain || ""}
+		/>
+		<label for="description" class="block w-full leading-6 text-slate-700 mt-4">Description</label>
+		<textarea
+			name="description"
+			id="description"
+			required
+			class="field-std h-32"
+			value={container?.description || ""}
+		/>
+		<button type="submit" class="btn-primary self-center w-1/3">Save</button>
+	</form>
+</div>

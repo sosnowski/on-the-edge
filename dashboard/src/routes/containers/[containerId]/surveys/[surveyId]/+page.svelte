@@ -5,4 +5,6 @@
 	export let data: PageData;
 </script>
 
-<SurveyCreator survey={data.survey} />
+{#if data.survey}
+	<SurveyCreator survey={data.survey} />
+{/if}

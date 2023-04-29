@@ -3,7 +3,8 @@ import { getDb } from "$lib/db";
 import { getAllContainers } from "db/containers";
 import type { PageServerLoad } from "./$types";
 
-export const load = (async () => {
+export const load = (async ({ depends }) => {
+	depends("app:containers");
 	let containers = [];
 	try {
 		console.log("Getting all containers");

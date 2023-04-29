@@ -8,6 +8,7 @@
 	import QuestionForm from "./fields/QuestionForm.svelte";
 	import type { Template } from "./templates/template";
 	import { newEntityId } from "shared/models/base";
+	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
 
 	export let survey: SurveyInfo;
 
@@ -156,25 +157,25 @@
 	}
 </script>
 
-<div class="w-full h-full relative">
-	<header
-		class="absolute z-10 flex flex-row justify-center items-center gap-6 bg-white shadow-md top-4 left-4 py-2 px-4 border border-slate-100 rounded-md"
-	>
-		<a href={`/containers/${currentSurvey.containerId}/surveys`}>
-			<i class="fa-solid fa-chevron-left" />
-		</a>
-		<span class="text-lg font-bold outline-none px-2 focus:outline-none max-w-xs truncate"
-			>{currentSurvey.name}</span
-		>
+<FloatingHeader
+	breadCrumbs={[
+		{
+			name: currentSurvey.containerName || "Container",
+			href: `/containers/${currentSurvey.containerId}/surveys`,
+		},
+		{ name: currentSurvey.name },
+	]}
+>
+	<button class="text-lg" title="Survey settings" on:click={() => showPanel("settings")}>
+		<i class="fa-solid fa-gear" />
+	</button>
+	<button class="text-lg" title="Use template" on:click={() => showPanel("templates")}>
+		<i class="fa-regular fa-folder-open" />
+	</button>
+	<button class="btn-primary">Publish</button>
+</FloatingHeader>
 
-		<button class="text-lg" title="Survey settings" on:click={() => showPanel("settings")}>
-			<i class="fa-solid fa-gear" />
-		</button>
-		<button class="text-lg" title="Use template" on:click={() => showPanel("templates")}>
-			<i class="fa-regular fa-folder-open" />
-		</button>
-		<button class="btn-primary">Publish</button>
-	</header>
+<div class="w-full flex-1 relative">
 	<SurveyPreview
 		survey={currentSurvey}
 		page={currentPage}
@@ -183,21 +184,21 @@
 		on:delete={onDeleteQuestion}
 		on:page={onPageChange}
 	/>
-
-	{#if currentSideBarPanel && sideBarPanels[currentSideBarPanel]}
-		<SideBar title={sideBarPanels[currentSideBarPanel].title} on:close={hidePanel}>
-			{#if currentSideBarPanel === "templates"}
-				<TemplateSelector on:change={sideBarPanels.templates.onChange} />
-			{:else if currentSideBarPanel === "settings"}
-				<SettingsForm survey={currentSurvey} on:change={sideBarPanels.settings.onChange} />
-			{:else if currentSideBarPanel === "newQuestion"}
-				<QuestionForm on:change={sideBarPanels.newQuestion.onChange} />
-			{:else if currentSideBarPanel === "editQuestion"}
-				<QuestionForm
-					question={currentSurvey.questions[currentPage]}
-					on:change={sideBarPanels.editQuestion.onChange}
-				/>
-			{/if}
-		</SideBar>
-	{/if}
 </div>
+
+{#if currentSideBarPanel && sideBarPanels[currentSideBarPanel]}
+	<SideBar title={sideBarPanels[currentSideBarPanel].title} on:close={hidePanel}>
+		{#if currentSideBarPanel === "templates"}
+			<TemplateSelector on:change={sideBarPanels.templates.onChange} />
+		{:else if currentSideBarPanel === "settings"}
+			<SettingsForm survey={currentSurvey} on:change={sideBarPanels.settings.onChange} />
+		{:else if currentSideBarPanel === "newQuestion"}
+			<QuestionForm on:change={sideBarPanels.newQuestion.onChange} />
+		{:else if currentSideBarPanel === "editQuestion"}
+			<QuestionForm
+				question={currentSurvey.questions[currentPage]}
+				on:change={sideBarPanels.editQuestion.onChange}
+			/>
+		{/if}
+	</SideBar>
+{/if}

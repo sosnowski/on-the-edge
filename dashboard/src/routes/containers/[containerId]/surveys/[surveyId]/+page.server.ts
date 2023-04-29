@@ -10,17 +10,16 @@ export const load = (async ({ params }) => {
 
 	if (params.surveyId === "create") {
 		// create default survey and redirect to it
-		console.log("CREATE NEW SURVEY");
-		let surveyId;
-		try {
-			surveyId = await createDefaultSurvey(db, containerId);
-			console.log("NEW SURVEY ID: ", surveyId);
-		} catch (err) {
-			console.error(err);
-			throw error(500, "Internal server error");
-		}
-
-		throw redirect(303, `/containers/${containerId}/surveys/${surveyId}`);
+		// console.log("CREATE NEW SURVEY");
+		// let surveyId;
+		// try {
+		// 	surveyId = await createDefaultSurvey(db, containerId);
+		// 	console.log("NEW SURVEY ID: ", surveyId);
+		// } catch (err) {
+		// 	console.error(err);
+		// 	throw error(500, "Internal server error");
+		// }
+		// throw redirect(303, `/containers/${containerId}/surveys/${surveyId}`);
 	} else {
 		const surveyId = EntityId.parse(params.surveyId);
 		const survey = getSurveyInfoById(db, surveyId);
