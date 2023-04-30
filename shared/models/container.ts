@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { EntityId, Token } from "./base";
 import { SurveyMetadata } from "./survey";
+import { isValidDomain } from "../validators";
 
 export const Container = z.object({
     id: EntityId.optional(),
     name: z.string(),
     description: z.string(),
-    domains: z.array(z.string()),
+    domains: z.array(
+        z.string().refine(isValidDomain, { message: "Invalid domain" })
+    ),
     created: z.string().optional(),
     updated: z.string().optional(),
 });
