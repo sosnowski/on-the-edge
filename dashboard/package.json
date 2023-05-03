@@ -34,6 +34,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"luxon": "^3.3.0",
 		"nanoid": "^4.0.2"
 	}
 }

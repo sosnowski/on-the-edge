@@ -1,5 +1,10 @@
 <script lang="ts">
-	import type { SurveyQuestion, SurveyInfo } from "shared/models/survey";
+	import {
+		type SurveyQuestion,
+		type SurveyInfo,
+		type PublishConfig,
+		Survey,
+	} from "shared/models/survey";
 	import SideBar from "./SideBar.svelte";
 	import SurveyPreview from "./preview/SurveyPreview.svelte";
 
@@ -9,6 +14,7 @@
 	import type { Template } from "./templates/template";
 	import { newEntityId } from "shared/models/base";
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
+	import { formatDate } from "$lib/helpers";
 
 	export let survey: SurveyInfo;
 
@@ -19,6 +25,13 @@
 	let currentPage: number = 0;
 	let saveTimer: any | undefined = undefined;
 	let dirty: boolean = false;
+
+	$: isPublished = currentSurvey.published;
+
+	$: updatedAfterPublished =
+		currentSurvey.published &&
+		currentSurvey.updated &&
+		currentSurvey.updated > currentSurvey.published.start;
 
 	const sideBarPanels = {
 		templates: {
@@ -128,6 +141,36 @@
 		currentPage = e.detail;
 	};
 
+	const publishSurvey = async () => {
+		const res = await fetch(`/api/surveys/${currentSurvey.id}/publish`, {
+			method: "POST",
+		});
+
+		console.log("PUBLISH RESPONSE", res);
+		console.log(res.status, res.statusText);
+		const updatedSurvey = Survey.parse(await res.json());
+
+		currentSurvey = {
+			...currentSurvey,
+			...updatedSurvey,
+		};
+	};
+
+	const unPublishSurvey = async () => {
+		const res = await fetch(`/api/surveys/${currentSurvey.id}/unpublish`, {
+			method: "POST",
+		});
+
+		console.log("UNPUBLISH RESPONSE", res);
+		console.log(res.status, res.statusText);
+		const updatedSurvey = Survey.parse(await res.json());
+
+		currentSurvey = {
+			...currentSurvey,
+			...updatedSurvey,
+		};
+	};
+
 	const saveSurvey = async (survey: SurveyInfo) => {
 		if (saveTimer) {
 			clearTimeout(saveTimer);
@@ -166,13 +209,27 @@
 		{ name: currentSurvey.name },
 	]}
 >
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
 	<button class="text-lg" title="Survey settings" on:click={() => showPanel("settings")}>
 		<i class="fa-solid fa-gear" />
 	</button>
 	<button class="text-lg" title="Use template" on:click={() => showPanel("templates")}>
 		<i class="fa-regular fa-folder-open" />
 	</button>
-	<button class="btn-primary">Publish</button>
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
+	{#if isPublished}
+		<p class="text-sm">
+			Published from {formatDate(currentSurvey.published?.start)}
+		</p>
+		<button class="btn-primary bg-red-600" on:click={unPublishSurvey}>Deactivate</button>
+		{#if updatedAfterPublished}
+			<button class="btn-primary" on:click={publishSurvey}>Publish updated</button>
+		{/if}
+	{/if}
+
+	{#if !isPublished}
+		<button class="btn-primary" on:click={publishSurvey}>Publish</button>
+	{/if}
 </FloatingHeader>
 
 <div class="w-full flex-1 relative">
@@ -184,6 +241,19 @@
 		on:delete={onDeleteQuestion}
 		on:page={onPageChange}
 	/>
+</div>
+
+{#if isPublished && updatedAfterPublished}
+	<div class="m-4 text-center">
+		Survey has been updated after publishing.<br />Click
+		<span class="text-fuchsia-500">Publish updated</span> to publish latest version.
+	</div>
+{/if}
+
+<div class="flex flex-row gap-2 m-4">
+	{#if currentSurvey.updated}
+		<p class="text-sm text-slate-800">Last updated: {formatDate(currentSurvey.updated)}</p>
+	{/if}
 </div>
 
 {#if currentSideBarPanel && sideBarPanels[currentSideBarPanel]}

@@ -10,8 +10,8 @@ export const Container = z.object({
     domains: z.array(
         z.string().refine(isValidDomain, { message: "Invalid domain" })
     ),
-    created: z.string().optional(),
-    updated: z.string().optional(),
+    created: z.coerce.date().optional(),
+    updated: z.coerce.date().optional(),
 });
 
 export const ContainerInfo = z.object({

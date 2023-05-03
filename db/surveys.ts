@@ -1,6 +1,11 @@
 import { nanoid } from "nanoid";
 import { Db } from "./client";
-import { Survey, SurveyInfo, SurveyQuestion } from "shared/models/survey";
+import {
+    PublishConfig,
+    Survey,
+    SurveyInfo,
+    SurveyQuestion,
+} from "shared/models/survey";
 import { fromDbRecord, toDbRecord } from "./helper";
 
 export const getAllSurveysByContainer = async (
@@ -21,7 +26,14 @@ export const getAllSurveysByContainer = async (
 
     console.log("Query result: ", data);
 
-    return (data || []).map((row) => Survey.parse(fromDbRecord(row)));
+    return (data || []).map((row) =>
+        Survey.parse({
+            ...fromDbRecord<Survey>(row),
+            created: new Date(row.created),
+            updated: new Date(row.updated),
+            published: row.published ? new Date(row.published) : undefined,
+        })
+    );
 };
 
 export const createDefaultSurvey = async (db: Db, containerId: string) => {
@@ -47,6 +59,32 @@ export const createDefaultSurvey = async (db: Db, containerId: string) => {
     console.log("SURVEY SAVED", data);
 
     return survey.id;
+};
+
+export const getSurveyById = async (
+    db: Db,
+    surveyId: string
+): Promise<Survey | null> => {
+    console.log("GET SURVEY BY ID " + surveyId);
+
+    const { data, error } = await db
+        .from("surveys")
+        .select()
+        .eq("id", surveyId)
+        .single();
+
+    if (error) {
+        console.error(error);
+        throw new Error("Error fetching survey");
+    }
+
+    console.log("SURVEY QUERY RESULT: ", data);
+
+    if (!data) {
+        return null;
+    }
+
+    return Survey.parse(fromDbRecord<Survey>(data));
 };
 
 export const getSurveyInfoById = async (
@@ -100,6 +138,7 @@ export const saveSurveyInfo = async (
 
     const { questions, ...survey } = surveyInfo;
 
+    survey.updated = new Date();
     const saveSurvey = db
         .from("surveys")
         .update(toDbRecord(survey, ["containerName"]))
@@ -144,4 +183,55 @@ export const saveSurveyInfo = async (
     }
 
     console.log("SURVEY INFO SAVED", res[0].data, res[1].data, res[2].data);
+};
+
+export const publishSurvey = async (
+    db: Db,
+    surveyId: string,
+    publishConfig: PublishConfig
+): Promise<Survey> => {
+    console.log("PUBLISHING SURVEY", surveyId);
+
+    const { data, error } = await db
+        .from("surveys")
+        .update({
+            published: publishConfig,
+        })
+        .eq("id", surveyId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error(error);
+        throw new Error("Error publishing survey");
+    }
+
+    console.log("SURVEY PUBLISHED", data);
+
+    return Survey.parse(fromDbRecord<Survey>(data));
+};
+
+export const unPublishSurvey = async (
+    db: Db,
+    surveyId: string
+): Promise<Survey> => {
+    console.log("UNPUBLISHING SURVEY", surveyId);
+
+    const { data, error } = await db
+        .from("surveys")
+        .update({
+            published: null,
+        })
+        .eq("id", surveyId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error(error);
+        throw new Error("Error unpublishing survey");
+    }
+
+    console.log("SURVEY UNPUBLISHED", data);
+
+    return Survey.parse(fromDbRecord<Survey>(data));
 };

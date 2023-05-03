@@ -13,6 +13,8 @@ CREATE TABLE surveys (
   trigger_config JSON NOT NULL,
   created timestamp with time zone default timezone('utc'::text, now()) not null,
   updated timestamp with time zone default timezone('utc'::text, now()) not null,
+  publishedFrom timestamp with time zone null,
+  publishedTo timestamp with time zone null,
 
   CONSTRAINT fkContainer
       FOREIGN KEY(container_id) 

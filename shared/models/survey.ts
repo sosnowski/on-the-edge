@@ -27,6 +27,10 @@ export const SurveyTrigger = z.union([
     FixedTrigger,
 ]);
 
+export const PublishConfig = z.object({
+    start: z.coerce.date(),
+});
+
 export const Survey = z.object({
     id: EntityId.optional(),
     containerId: EntityId,
@@ -35,8 +39,10 @@ export const Survey = z.object({
     displayType: SurveyDisplayType,
     triggerConfig: SurveyTrigger,
 
-    updated: z.string().optional(),
-    created: z.string().optional(),
+    published: PublishConfig.nullable().optional(),
+
+    updated: z.coerce.date().optional(),
+    created: z.coerce.date().optional(),
 });
 
 const BaseQuestion = z.object({
@@ -96,3 +102,4 @@ export type SurveyQuestion = z.infer<typeof SurveyQuestion>;
 export type SurveyMetadata = z.infer<typeof SurveyMetadata>;
 export type SurveyInfo = z.infer<typeof SurveyInfo>;
 export type SurveyDisplayType = z.infer<typeof SurveyDisplayType>;
+export type PublishConfig = z.infer<typeof PublishConfig>;

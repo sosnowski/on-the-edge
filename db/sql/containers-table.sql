@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS containers;
 
-CREATE DOMAIN EntityId varchar(30) NOT NULL;
+CREATE DOMAIN EntityId varchar(30);
 
 CREATE TABLE containers (
 	id EntityId NOT NULL PRIMARY KEY,

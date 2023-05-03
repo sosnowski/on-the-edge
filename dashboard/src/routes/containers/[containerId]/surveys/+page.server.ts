@@ -21,6 +21,11 @@ export const load = (async ({ params }) => {
 			throw error(404, "Container not found");
 		}
 
+		console.log({
+			container: res[0],
+			surveys: res[1],
+		});
+
 		return {
 			container: res[0],
 			surveys: res[1],
