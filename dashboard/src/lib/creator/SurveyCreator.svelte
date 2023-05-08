@@ -1,10 +1,5 @@
 <script lang="ts">
-	import {
-		type SurveyQuestion,
-		type SurveyInfo,
-		type PublishConfig,
-		Survey,
-	} from "shared/models/survey";
+	import { SurveyQuestion, SurveyInfo, type PublishConfig, Survey } from "shared/models/survey";
 	import SideBar from "./SideBar.svelte";
 	import SurveyPreview from "./preview/SurveyPreview.svelte";
 
@@ -43,7 +38,6 @@
 					questions: e.detail.questions.map((question) => {
 						return {
 							...question,
-							id: newEntityId(),
 						};
 					}),
 				};
@@ -186,6 +180,12 @@
 			});
 			console.log("SAVE RESPONSE", res);
 			console.log(res.status, res.statusText);
+
+			const updatedSurvey = SurveyInfo.parse(await res.json());
+
+			currentSurvey = {
+				...updatedSurvey,
+			};
 			dirty = false;
 		}, 1000);
 	};

@@ -7,6 +7,18 @@ import {
     SurveyQuestion,
 } from "shared/models/survey";
 import { fromDbRecord, toDbRecord } from "./helper";
+import { newEntityId } from "shared/models/base";
+
+export const parseSurvey = (row: Record<string, any>): Survey => {
+    return Survey.parse(fromDbRecord<Survey>(row));
+};
+
+export const parseQuestion = (row: Record<string, any>): SurveyQuestion => {
+    if (row.type === "select") {
+        row.options = row.config?.options || [];
+    }
+    return SurveyQuestion.parse(fromDbRecord<SurveyQuestion>(row));
+};
 
 export const getAllSurveysByContainer = async (
     db: Db,
@@ -26,14 +38,7 @@ export const getAllSurveysByContainer = async (
 
     console.log("Query result: ", data);
 
-    return (data || []).map((row) =>
-        Survey.parse({
-            ...fromDbRecord<Survey>(row),
-            created: new Date(row.created),
-            updated: new Date(row.updated),
-            published: row.published ? new Date(row.published) : undefined,
-        })
-    );
+    return (data || []).map(parseSurvey);
 };
 
 export const createDefaultSurvey = async (db: Db, containerId: string) => {
@@ -84,7 +89,7 @@ export const getSurveyById = async (
         return null;
     }
 
-    return Survey.parse(fromDbRecord<Survey>(data));
+    return parseSurvey(data);
 };
 
 export const getSurveyInfoById = async (
@@ -118,22 +123,16 @@ export const getSurveyInfoById = async (
     }
 
     return SurveyInfo.parse({
-        ...fromDbRecord<Survey>(res[0].data),
+        ...parseSurvey(res[0].data),
         containerName: res[0].data.containers?.name,
-        questions:
-            res[1].data?.map((row) => {
-                if (row.type === "select") {
-                    row.options = row.config?.options || [];
-                }
-                return fromDbRecord(row);
-            }) || [],
+        questions: res[1].data?.map(parseQuestion) || [],
     });
 };
 
 export const saveSurveyInfo = async (
     db: Db,
     surveyInfo: SurveyInfo
-): Promise<void> => {
+): Promise<SurveyInfo> => {
     console.log("SAVING SURVEY INFO", surveyInfo);
 
     const { questions, ...survey } = surveyInfo;
@@ -142,7 +141,9 @@ export const saveSurveyInfo = async (
     const saveSurvey = db
         .from("surveys")
         .update(toDbRecord(survey, ["containerName"]))
-        .eq("id", survey.id);
+        .eq("id", survey.id)
+        .select()
+        .single();
 
     const questionsRecords = questions.map((q, index) => {
         let config: Record<string, unknown> | null;
@@ -155,7 +156,7 @@ export const saveSurveyInfo = async (
         }
 
         return {
-            id: q.id,
+            id: q.id || newEntityId(),
             survey_id: survey.id,
             ...toDbRecord(q, ["options"]),
             order: index,
@@ -165,7 +166,10 @@ export const saveSurveyInfo = async (
 
     console.log("QUESTIONS TO SAVE");
     console.log(questionsRecords);
-    const saveQuestions = db.from("questions").upsert(questionsRecords);
+    const saveQuestions = db
+        .from("questions")
+        .upsert(questionsRecords)
+        .select();
 
     console.log("QUESTIONS TO REMOVE");
     console.log("ID NOT IN (" + questions.map((q) => q.id).join(",") + ")");
@@ -183,6 +187,12 @@ export const saveSurveyInfo = async (
     }
 
     console.log("SURVEY INFO SAVED", res[0].data, res[1].data, res[2].data);
+
+    return SurveyInfo.parse({
+        ...surveyInfo,
+        ...parseSurvey(res[0].data),
+        questions: res[1].data?.map(parseQuestion) || [],
+    });
 };
 
 export const publishSurvey = async (

@@ -11,6 +11,6 @@ export const PUT = (async ({ request }) => {
 	console.log("UPDATE SURVEY INFO");
 	console.log(surveyInfo);
 
-	await saveSurveyInfo(db, surveyInfo);
-	return json(surveyInfo);
+	const updatedSurvey = await saveSurveyInfo(db, surveyInfo);
+	return json(updatedSurvey);
 }) satisfies RequestHandler;
