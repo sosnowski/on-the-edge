@@ -1,17 +1,41 @@
-import { json, type RequestHandler } from "@sveltejs/kit";
+import { error, json, type RequestHandler } from "@sveltejs/kit";
 import { getDb } from "$lib/db";
-import { unPublishSurvey } from "db/surveys";
+import { publishSurvey, getSurveyInfoById, unPublishSurvey } from "db/surveys";
+import {
+	publishSurvey as apiPublishSurvey,
+	unpublishSurvey as apiUnpublishSurvey,
+} from "$lib/surveys_api";
 import { EntityId } from "shared/models/base";
 
 export const POST = (async ({ request, params }) => {
-	console.log("UNPUBLISH SURVEY");
+	console.log("PUBLISH SURVEY");
 	const surveyId = EntityId.parse(params.surveyId);
 	const db = getDb();
 
-	const survey = await unPublishSurvey(db, surveyId);
+	const surveyInfo = await getSurveyInfoById(db, surveyId);
 
-	console.log("SURVEY UNPUBLISHED");
-	console.log(survey);
+	if (!surveyInfo) {
+		throw error(404, "Survey not found");
+	}
 
-	return json(survey);
+	try {
+		await apiUnpublishSurvey(surveyInfo.containerId, surveyInfo.id!);
+	} catch (e) {
+		console.error("Failed to unpublish survey to API", e);
+		throw error(500, "Failed to unpublish survey to API");
+	}
+
+	try {
+		console.log("Saving unpublished survey to DB");
+		const survey = await unPublishSurvey(db, surveyId);
+
+		console.log("Survey unpublished!");
+		return json(survey);
+	} catch (e) {
+		console.error("Failed to save unpublished survey to DB", e);
+
+		console.log("Rolling back survey unpublish");
+		await apiPublishSurvey(surveyInfo.containerId, surveyInfo);
+		throw error(500, "Failed to unpublish survey");
+	}
 }) satisfies RequestHandler;
