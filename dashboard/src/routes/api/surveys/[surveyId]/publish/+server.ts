@@ -1,18 +1,16 @@
 import { json, type RequestHandler, error } from "@sveltejs/kit";
 import { getDb } from "$lib/db";
 import { publishSurvey, getSurveyInfoById, unPublishSurvey } from "db/surveys";
-import { publishSurvey as apiPublishSurvey } from "$lib/surveys_api";
+import {
+	publishSurvey as apiPublishSurvey,
+	unpublishSurvey as apiUnpublishSurvey,
+} from "$lib/surveys_api";
 import { EntityId } from "shared/models/base";
 
 export const POST = (async ({ params }) => {
 	console.log("PUBLISH SURVEY");
 	const surveyId = EntityId.parse(params.surveyId);
 	const db = getDb();
-
-	console.log("Saving survey to DB");
-	const survey = await publishSurvey(db, surveyId, {
-		start: new Date(),
-	});
 
 	const surveyInfo = await getSurveyInfoById(db, surveyId);
 
@@ -21,18 +19,25 @@ export const POST = (async ({ params }) => {
 	}
 
 	try {
-		console.log("Publishing survey!");
 		await apiPublishSurvey(surveyInfo.containerId, surveyInfo);
 	} catch (e) {
-		console.error("Failed to publish survey", e);
-		console.log("Rolling back survey publish");
-		await unPublishSurvey(db, surveyId);
-
-		throw error(500, "Failed to publish survey");
+		console.error("Failed to publish survey to API", e);
+		throw error(500, "Failed to publish survey to API");
 	}
 
-	console.log("SURVEY PUBLISHED");
-	console.log(surveyInfo);
+	try {
+		console.log("Saving published survey to DB");
+		const survey = await publishSurvey(db, surveyId, {
+			start: new Date(),
+		});
 
-	return json(survey);
+		console.log("Survey published");
+		return json(survey);
+	} catch (e) {
+		console.error("Failed to save published survey to DB", e);
+
+		console.log("Rolling back survey publish");
+		await apiUnpublishSurvey(surveyInfo.containerId, surveyInfo.id!);
+		throw error(500, "Failed to publish survey");
+	}
 }) satisfies RequestHandler;
