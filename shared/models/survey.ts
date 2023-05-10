@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { EntityId } from "./base";
 
+export * from "./base";
+
 export const SurveyDisplayType = z.enum(["fab", "modal", "toast"]); //FAB: Floating Action Button
 export const SurveyStatus = z.enum(["active", "paused"]);
 export const QuestionType = z.enum(["text", "rating", "select"]);

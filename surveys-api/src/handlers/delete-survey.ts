@@ -1,4 +1,4 @@
-import { EntityId, SurveyInfo } from "shared/models/survey";
+import { EntityId } from "shared/models/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
 
@@ -7,12 +7,7 @@ export const handler = async (request: RouterRequest, env: Env): Promise<Respons
 	const surveyId = EntityId.parse(request.params["surveyId"]);
 
 	const KVKey = `Container:${containerId}:Survey:${surveyId}`;
-	const data = await env.KV.get(KVKey, "json");
+	await env.KV.delete(KVKey);
 
-	if (!data) {
-		return new Response("", { status: 404 });
-	}
-
-	//parsing is theoretically not needed here and we could just return string json but it allows us to validate
-	return new Response(JSON.stringify(SurveyInfo.parse(data)));
+	return new Response("");
 };

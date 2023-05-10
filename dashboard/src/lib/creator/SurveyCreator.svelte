@@ -142,12 +142,14 @@
 
 		console.log("PUBLISH RESPONSE", res);
 		console.log(res.status, res.statusText);
-		const updatedSurvey = Survey.parse(await res.json());
+		if (res.ok) {
+			const updatedSurvey = Survey.parse(await res.json());
 
-		currentSurvey = {
-			...currentSurvey,
-			...updatedSurvey,
-		};
+			currentSurvey = {
+				...currentSurvey,
+				...updatedSurvey,
+			};
+		}
 	};
 
 	const unPublishSurvey = async () => {
