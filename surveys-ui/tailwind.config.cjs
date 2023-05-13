@@ -1,11 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   important: '.micro-survey',
-  prefix: "ms-",
   corePlugins: {
     preflight: false,
   },
-  content: ['./src/**/*.{html,js,svelte,ts}', './index.html'],
+  content: ['./src/**/*.{html,js,svelte,ts}', './index.html', '../surveys/**/*.{html,js,svelte,ts}'],
   theme: {
     extend: {},
   },

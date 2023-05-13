@@ -2,7 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+	.btn-std {
+		@apply text-sm text-slate-800 inline-block bg-white border border-slate-200 rounded-md py-1 px-4 shadow-md hover:bg-slate-100 hover:border-slate-300 cursor-pointer;
+	}
+	.btn-primary {
+		@apply text-sm inline-block bg-fuchsia-500 text-white border border-fuchsia-200 rounded-md py-1 px-4 shadow-md hover:bg-fuchsia-300 hover:border-fuchsia-300 cursor-pointer;
+	}
+
+	.field-std {
+		@apply rounded-md border-0 py-1.5 text-slate-800 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-fuchsia-600 sm:text-sm sm:leading-6
+	}
+}
+
+
 .micro-survey {
+
+  font-family: 'Quicksand', sans-serif;
+
 	/**
  * Manually forked from SUIT CSS Base: https://github.com/suitcss/base
  * A thin layer on top of normalize.css that provides a starting point more

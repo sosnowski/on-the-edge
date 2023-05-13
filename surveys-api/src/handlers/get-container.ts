@@ -6,7 +6,8 @@ import { Env } from "../env";
 import { RouterRequest } from "../router";
 
 export const handler = async (request: RouterRequest, env: Env): Promise<Response> => {
-	const containerId = EntityId.parse(+request.params["containerId"]);
+	console.log("LOAD CONTAINER INFO");
+	const containerId = EntityId.parse(request.params["containerId"]);
 	const userToken = (request.query["userToken"] as string) || nanoid(30);
 	const sessionToken = (request.query["sessionToken"] as string) || nanoid(30);
 
@@ -17,13 +18,9 @@ export const handler = async (request: RouterRequest, env: Env): Promise<Respons
 	console.log("GOT KEYS!");
 	console.log(surveysMeta);
 
-	const surveys = surveysMeta.keys
-		.filter(({ name, metadata }) => {
-			return metadata && metadata.status === "active";
-		})
-		.map(({ name, metadata }) => {
-			return metadata!;
-		});
+	const surveys = surveysMeta.keys.map(({ name, metadata }) => {
+		return metadata!;
+	});
 
 	const containerInfo: ContainerInfo = {
 		userToken: userToken,
