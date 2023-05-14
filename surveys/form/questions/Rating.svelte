@@ -5,7 +5,7 @@
 	export let question: SurveyQuestion;
 
 	const dispatch = createEventDispatcher<{
-		submit: number;
+		submit: string;
 	}>();
 
 	const options = [
@@ -17,7 +17,7 @@
 	];
 
 	const onSelect = (value: number) => {
-		dispatch("submit", value);
+		dispatch("submit", value.toString());
 	};
 </script>
 

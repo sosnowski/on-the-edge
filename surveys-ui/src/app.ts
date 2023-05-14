@@ -33,6 +33,8 @@ new SurveysRoot({
 	target: target,
 	props: {
 		surveys: surveys,
+		userToken: newUserToken,
+		sessionToken: newSessionToken,
 	},
 });
 

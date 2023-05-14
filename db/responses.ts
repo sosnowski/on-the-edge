@@ -1,33 +1,29 @@
-import { ResponseEvent, SurveyEvent } from "shared/models/response";
+import { SurveyResponse } from "shared/models/response";
 import { Db } from "./client";
+import { toDbRecord } from "./helper";
 
-export const getAllResponses = async (db: Db): Promise<SurveyEvent[]> => {
-    console.log("Executing SELECT * query");
-    const res = await db.execute("SELECT * FROM responses");
-    return res.rows.map((row) => SurveyEvent.parse(row));
-};
+// export const getAllResponses = async (db: Db): Promise<SurveyEvent[]> => {
+//     console.log("Executing SELECT * query");
+//     const res = await db.execute("SELECT * FROM responses");
+//     return res.rows.map((row) => SurveyEvent.parse(row));
+// };
 
 export const saveResponses = async (
     db: Db,
-    event: ResponseEvent[]
+    responses: SurveyResponse[]
 ): Promise<void> => {
-    const values = event.flatMap((event) =>
-        event.responses.map((response) => [
-            event.userId,
-            event.surveyId,
-            event.sessionToken,
-            response.fieldId,
-            response.type,
-            response.content,
-        ])
-    );
+    console.log("Saving responses", responses);
 
-    const query = `INSERT INTO responses (userId, surveyId, sessionToken, fieldId, fieldType, content) VALUES ${values
-        .map((_) => "(?, ?, ?, ?, ?, ?)")
-        .join(", ")}`;
+    const res = await db
+        .from("responses")
+        .insert(responses.map((res) => toDbRecord(res)));
 
-    console.log("Executing INSERT query");
-    const res = await db.execute(query, values.flat());
-    console.log("Query executed!");
     console.log(res);
+
+    const { error } = res;
+
+    if (error) {
+        console.error(error);
+        throw new Error("Error saving responses");
+    }
 };

@@ -4,6 +4,7 @@ export type Trigger = (config: SurveyTrigger, callback: () => void) => RemoveTri
 export type RemoveTrigger = () => void;
 
 export const setTrigger: Trigger = (config, callback) => {
+	console.log('Setting trigger for type "' + config.type);
 	switch (config.type) {
 		case "onload":
 			return onLoad(config, callback);
@@ -44,7 +45,7 @@ export const onLoad: Trigger = (config: OnLoadTrigger, callback) => {
 
 export const onClick: Trigger = (config: OnClickTrigger, callback) => {
 	let timer;
-
+	console.log("Setting up click trigger for selector " + config.selector);
 	const listener = (event) => {
 		console.log("Trigger on click " + event.target);
 		const target = event.target as HTMLElement;

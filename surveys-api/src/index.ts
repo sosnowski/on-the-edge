@@ -13,7 +13,7 @@ import { Env } from "./env";
 import { handler as putSurveyHandler } from "./handlers/put-survey";
 import { handler as getContainerInfo } from "./handlers/get-container";
 import { handler as getSurveyHandler } from "./handlers/get-survey";
-import { handler as putSurveyEvent } from "./handlers/put-event";
+import { handler as putSurveyResponse } from "./handlers/put-response";
 import { handler as deleteSurvey } from "./handlers/delete-survey";
 
 const router = Router();
@@ -27,7 +27,7 @@ router
 
 	.get("/containers/:containerId/surveys/:surveyId", getSurveyHandler as any)
 
-	.post("/containers/:containerId/surveys/:surveyId/event", putSurveyEvent as any)
+	.post("/surveys/:surveyId/response", putSurveyResponse as any)
 
 	.all("*", () => {
 		console.log("Error 404");

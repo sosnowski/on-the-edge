@@ -61,25 +61,28 @@ export const loadContainerInfo = async (
 };
 
 export const postResponse = async (
-	surveyId: number,
+	surveyId: string,
 	userToken: string,
 	sessionToken: string,
-	responses: SurveyResponse[],
+	response: SurveyResponse,
 ): Promise<void> => {
-	console.log(`Sending response for`, responses);
+	console.log(`Sending response`, response);
 
-	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/event`, {
+	const surveyResponse: SurveyResponse = {
+		surveyId: surveyId,
+		userToken: userToken,
+		sessionToken: sessionToken,
+		questionId: response.questionId,
+		content: response.content,
+	};
+
+	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/response`, {
 		method: "POST",
-		body: JSON.stringify({
-			type: "response",
-			userToken: userToken,
-			sessionToken: sessionToken,
-			responses: responses,
-		}),
+		body: JSON.stringify(surveyResponse),
 	});
 
 	if (!resp.ok) {
-		console.error("Unable to save the response!");
-		throw new Error();
+		console.error("Unable to save the response!", resp.statusText);
+		throw new Error("Ubable to save the response!");
 	}
 };
