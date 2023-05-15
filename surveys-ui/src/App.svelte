@@ -1,26 +1,4 @@
 <script lang="ts">
-	import { onLoad, onClick } from "./triggers";
-
-	onLoad(
-		{
-			type: "onload",
-			pageRegex: "ad-.*",
-		},
-		() => {
-			console.log("onLoad TRIGGER");
-		},
-	);
-
-	onClick(
-		{
-			type: "onclick",
-			selector: "#trigger-survey",
-		},
-		() => {
-			console.log("onClick TRIGGER");
-		},
-	);
-
 	const onRouteClick = (path: string) => {
 		console.log("Push state " + path);
 		window.history.pushState({}, "", path);

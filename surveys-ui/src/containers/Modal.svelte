@@ -5,7 +5,7 @@
 	import { setTrigger } from "../triggers";
 
 	export let triggerConfig: SurveyTrigger;
-	let surveyVisible = true;
+	let surveyVisible = false;
 
 	const clearTrigger = setTrigger(triggerConfig, () => {
 		surveyVisible = true;
@@ -33,6 +33,9 @@
 				class="relative overflow-hidden rounded-md bg-white p-4 text-left shadow-lg w-full max-w-xl border border-slate-100"
 			>
 				<slot />
+				<button class="absolute top-2 right-3" on:click={onClose}>
+					<i class="fa-solid fa-xmark text-slate-500 text-xl" />
+				</button>
 			</div>
 		</div>
 	</div>

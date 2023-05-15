@@ -1,21 +1,25 @@
 import type { OnLoadTrigger, OnClickTrigger, SurveyTrigger } from "shared/models/survey";
 
-export type Trigger = (config: SurveyTrigger, callback: () => void) => RemoveTrigger;
+export type Trigger = (
+	config: SurveyTrigger,
+	onActiveCallback: () => void,
+	onInactiveCallback?: () => void,
+) => RemoveTrigger;
 export type RemoveTrigger = () => void;
 
-export const setTrigger: Trigger = (config, callback) => {
+export const setTrigger: Trigger = (config, onActiveCallback, onInactiveCallback) => {
 	console.log('Setting trigger for type "' + config.type);
 	switch (config.type) {
 		case "onload":
-			return onLoad(config, callback);
+			return onLoad(config, onActiveCallback, onInactiveCallback);
 		case "onclick":
-			return onClick(config, callback);
+			return onClick(config, onActiveCallback);
 		default:
 			throw new Error("Unsupported trigger type " + config.type);
 	}
 };
 
-export const onLoad: Trigger = (config: OnLoadTrigger, callback) => {
+export const onLoad: Trigger = (config: OnLoadTrigger, onActiveCallback, onInactiveCallback) => {
 	let interval;
 	let timer;
 	let href;
@@ -27,8 +31,10 @@ export const onLoad: Trigger = (config: OnLoadTrigger, callback) => {
 			href = window.location.href;
 			if (regex.test(window.location.pathname)) {
 				timer = setTimeout(() => {
-					callback();
+					onActiveCallback();
 				}, config.delay || 0);
+			} else if (onInactiveCallback) {
+				onInactiveCallback();
 			}
 		}
 	}, 200);
@@ -43,7 +49,7 @@ export const onLoad: Trigger = (config: OnLoadTrigger, callback) => {
 	};
 };
 
-export const onClick: Trigger = (config: OnClickTrigger, callback) => {
+export const onClick: Trigger = (config: OnClickTrigger, onActiveCallback) => {
 	let timer;
 	console.log("Setting up click trigger for selector " + config.selector);
 	const listener = (event) => {
@@ -52,7 +58,7 @@ export const onClick: Trigger = (config: OnClickTrigger, callback) => {
 		if (target.matches(config.selector)) {
 			console.log("Matching selector!");
 			timer = setTimeout(() => {
-				callback();
+				onActiveCallback();
 			}, config.delay || 0);
 		}
 	};
