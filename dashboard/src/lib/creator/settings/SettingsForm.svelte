@@ -16,7 +16,7 @@
 	let triggerType = survey.triggerConfig.type;
 	let displayType = survey.displayType;
 	let delay = (survey.triggerConfig as OnLoadTrigger).delay || 0;
-	let pageRegex = (survey.triggerConfig as OnLoadTrigger).pageRegex || "";
+	let pageGlob = (survey.triggerConfig as OnLoadTrigger).pageGlob || "";
 	let selector = (survey.triggerConfig as OnClickTrigger).selector || "";
 
 	const onSubmit = (e: Event) => {
@@ -31,7 +31,7 @@
 				triggerConfig = {
 					type: "onload",
 					delay: +(data.get("delay") || 0),
-					pageRegex: (data.get("pageRegex") as string) || undefined,
+					pageGlob: (data.get("pageGlob") as string) || undefined,
 				};
 				break;
 			case "onclick":
@@ -41,10 +41,10 @@
 					selector: data.get("selector") as string,
 				};
 				break;
-			case "fixed":
+			case "always":
 			default:
 				triggerConfig = {
-					type: "fixed",
+					type: "always",
 				};
 				break;
 		}
@@ -88,22 +88,22 @@
 
 		<label for="trigger" class="block w-full leading-6 text-slate-700 mt-4">Trigger type</label>
 		<select name="trigger" id="trigger" class="field-std block w-full" bind:value={triggerType}>
-			<option value="fixed">Fixed</option>
-			<option value="onload">Onload</option>
-			<option value="onclick">Onclick</option>
+			<option value="always">Survey is always displayed</option>
+			<option value="onload">Displayed on specific pages</option>
+			<option value="onclick">Displayed on click</option>
 		</select>
 
 		{#if triggerType === "onload"}
 			<fieldset class="contents">
 				<legend class="font-bold mt-4">Trigger details</legend>
-				<label for="pageRegex" class="block w-full leading-6 text-slate-700 mt-4">Page Regex</label>
+				<label for="pageGlob" class="block w-full leading-6 text-slate-700 mt-4">Page Regex</label>
 				<input
 					type="text"
-					name="pageRegex"
-					id="pageRegex"
+					name="pageGlob"
+					id="pageGlob"
 					placeholder="/articles/.*"
 					class="field-std block w-full"
-					value={pageRegex}
+					bind:value={pageGlob}
 				/>
 				<label for="delay" class="block w-full leading-6 text-slate-700 mt-4">Delay</label>
 				<input

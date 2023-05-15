@@ -14,16 +14,20 @@ export const setTrigger: Trigger = (config, onActiveCallback, onInactiveCallback
 			return onLoad(config, onActiveCallback, onInactiveCallback);
 		case "onclick":
 			return onClick(config, onActiveCallback);
-		default:
-			throw new Error("Unsupported trigger type " + config.type);
+		case "always":
+			return always(config, onActiveCallback);
 	}
+};
+
+const globPatternToRegex = (glob: string): RegExp => {
+	return new RegExp(`^${glob.replace(/\./g, "\\.").replace(/\*/g, ".*").replace(/\?/g, ".")}$`);
 };
 
 export const onLoad: Trigger = (config: OnLoadTrigger, onActiveCallback, onInactiveCallback) => {
 	let interval;
 	let timer;
 	let href;
-	const regex = config.pageRegex ? new RegExp(config.pageRegex) : new RegExp(".*");
+	const regex = config.pageGlob ? globPatternToRegex(config.pageGlob) : new RegExp(".*");
 
 	interval = setInterval(() => {
 		if (href !== window.location.href) {
@@ -73,4 +77,9 @@ export const onClick: Trigger = (config: OnClickTrigger, onActiveCallback) => {
 			clearTimeout(timer);
 		}
 	};
+};
+
+export const always: Trigger = (config, onActiveCallback) => {
+	onActiveCallback();
+	return () => {};
 };

@@ -8,86 +8,78 @@ export const SurveyStatus = z.enum(["active", "paused"]);
 export const QuestionType = z.enum(["text", "rating", "select"]);
 
 export const OnLoadTrigger = z.object({
-    type: z.literal("onload"),
-    delay: z.number().min(0).optional(),
-    pageRegex: z.string().optional(),
+	type: z.literal("onload"),
+	delay: z.number().min(0).optional(),
+	pageGlob: z.string().optional(),
 });
 
 export const OnClickTrigger = z.object({
-    type: z.literal("onclick"),
-    selector: z.string(),
-    delay: z.number().min(0).optional(),
+	type: z.literal("onclick"),
+	selector: z.string(),
+	delay: z.number().min(0).optional(),
 });
 
-export const FixedTrigger = z.object({
-    type: z.literal("fixed"),
+export const AlwaysTrigger = z.object({
+	type: z.literal("always"),
 });
 
-export const SurveyTrigger = z.union([
-    OnLoadTrigger,
-    OnClickTrigger,
-    FixedTrigger,
-]);
+export const SurveyTrigger = z.union([OnLoadTrigger, OnClickTrigger, AlwaysTrigger]);
 
 export const PublishConfig = z.object({
-    start: z.coerce.date(),
+	start: z.coerce.date(),
 });
 
 export const Survey = z.object({
-    id: EntityId.optional(),
-    containerId: EntityId,
-    name: z.string(),
-    status: z.enum(["active", "inactive"]),
-    displayType: SurveyDisplayType,
-    triggerConfig: SurveyTrigger,
+	id: EntityId.optional(),
+	containerId: EntityId,
+	name: z.string(),
+	status: z.enum(["active", "inactive"]),
+	displayType: SurveyDisplayType,
+	triggerConfig: SurveyTrigger,
 
-    published: PublishConfig.nullable().optional(),
+	published: PublishConfig.nullable().optional(),
 
-    updated: z.coerce.date().optional(),
-    created: z.coerce.date().optional(),
+	updated: z.coerce.date().optional(),
+	created: z.coerce.date().optional(),
 });
 
 const BaseQuestion = z.object({
-    id: EntityId.optional(),
-    label: z.string(),
-    type: QuestionType,
-    order: z.number().optional(),
+	id: EntityId.optional(),
+	label: z.string(),
+	type: QuestionType,
+	order: z.number().optional(),
 });
 
 export const TextQuestion = BaseQuestion.extend({
-    type: z.literal("text"),
+	type: z.literal("text"),
 });
 
 export const RatingQuestion = BaseQuestion.extend({
-    type: z.literal("rating"),
+	type: z.literal("rating"),
 });
 
 export const SelectQuestionOption = z.object({
-    label: z.string(),
-    value: z.string(),
+	label: z.string(),
+	value: z.string(),
 });
 
 export const SelectQuestion = BaseQuestion.extend({
-    type: z.literal("select"),
-    options: z.array(SelectQuestionOption),
+	type: z.literal("select"),
+	options: z.array(SelectQuestionOption),
 });
 
-export const SurveyQuestion = z.union([
-    TextQuestion,
-    RatingQuestion,
-    SelectQuestion,
-]);
+export const SurveyQuestion = z.union([TextQuestion, RatingQuestion, SelectQuestion]);
 
 export const SurveyMetadata = z.object({
-    surveyId: EntityId,
-    displayType: Survey.shape.displayType,
-    status: Survey.shape.status,
-    triggerConfig: SurveyTrigger,
+	surveyId: EntityId,
+	displayType: Survey.shape.displayType,
+	status: Survey.shape.status,
+	triggerConfig: SurveyTrigger,
 });
 
 export const SurveyInfo = Survey.extend({
-    containerName: z.string().optional(),
-    questions: z.array(SurveyQuestion),
+	containerName: z.string().optional(),
+	questions: z.array(SurveyQuestion),
 });
 
 export type SurveyStatus = z.infer<typeof SurveyStatus>;
