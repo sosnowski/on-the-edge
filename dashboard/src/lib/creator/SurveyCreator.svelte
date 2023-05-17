@@ -7,9 +7,9 @@
 	import SettingsForm from "./settings/SettingsForm.svelte";
 	import QuestionForm from "./fields/QuestionForm.svelte";
 	import type { Template } from "./templates/template";
-	import { newEntityId } from "shared/models/base";
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
 	import { formatDate } from "$lib/helpers";
+	import InfoForm from "./info/InfoForm.svelte";
 
 	export let survey: SurveyInfo;
 
@@ -42,6 +42,18 @@
 					}),
 				};
 				console.log("AFTER CHANGE", currentSurvey);
+				dirty = true;
+				hidePanel();
+			},
+		},
+		info: {
+			title: "Survey information",
+			onChange: (e: CustomEvent<Partial<SurveyInfo>>) => {
+				console.log("ON info CHANGE", e.detail);
+				currentSurvey = {
+					...currentSurvey,
+					...e.detail,
+				};
 				dirty = true;
 				hidePanel();
 			},
@@ -212,6 +224,9 @@
 	]}
 >
 	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
+	<button title="Change survey name" on:click={() => showPanel("info")}>
+		<i class="fa-solid fa-pen" />
+	</button>
 	<button class="text-lg" title="Survey settings" on:click={() => showPanel("settings")}>
 		<i class="fa-solid fa-gear" />
 	</button>
@@ -264,6 +279,8 @@
 			<TemplateSelector on:change={sideBarPanels.templates.onChange} />
 		{:else if currentSideBarPanel === "settings"}
 			<SettingsForm survey={currentSurvey} on:change={sideBarPanels.settings.onChange} />
+		{:else if currentSideBarPanel === "info"}
+			<InfoForm survey={currentSurvey} on:change={sideBarPanels.info.onChange} />
 		{:else if currentSideBarPanel === "newQuestion"}
 			<QuestionForm on:change={sideBarPanels.newQuestion.onChange} />
 		{:else if currentSideBarPanel === "editQuestion"}

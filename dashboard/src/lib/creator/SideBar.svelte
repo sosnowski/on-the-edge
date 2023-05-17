@@ -12,7 +12,7 @@
 	transition:fly={{ x: 400 }}
 	class="pointer-events-none absolute inset-y-0 right-0 flex max-w-full pl-10"
 >
-	<div class="pointer-events-auto w-screen max-w-lg">
+	<div class="pointer-events-auto w-screen max-w-xl">
 		<div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
 			<div class="px-4 sm:px-6">
 				<div class="flex items-start justify-between">
