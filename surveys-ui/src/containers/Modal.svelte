@@ -30,7 +30,7 @@
 			class="flex min-h-full justify-center text-center items-center p-4"
 		>
 			<div
-				class="relative overflow-hidden rounded-md bg-white p-4 text-left shadow-lg w-full max-w-xl border border-slate-100"
+				class="relative overflow-hidden rounded-md bg-white p-2 text-left shadow-lg w-full max-w-lg border border-slate-100"
 			>
 				<slot />
 				<button class="absolute top-2 right-3" on:click={onClose}>

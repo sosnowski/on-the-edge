@@ -23,7 +23,7 @@
 {#if surveyVisible}
 	<div transition:fade class="absolute bottom-0 flex items-center justify-center w-full">
 		<div
-			class="relative overflow-hidden rounded-md bg-white p-4 text-left shadow-lg w-full max-w-xl border border-slate-100"
+			class="relative overflow-hidden rounded-md bg-white text-left shadow-lg w-full max-w-lg p-2 border border-slate-100"
 		>
 			<slot />
 			<button class="absolute top-2 right-3" on:click={onClose}>
