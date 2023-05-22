@@ -17,26 +17,53 @@
 
 	let triggerType = survey.triggerConfig.type;
 	let triggerLimit = survey.triggerConfig.limit;
+	let displayType = survey.displayType;
 	let pageGlob = (survey.triggerConfig as OnLoadTrigger).pageGlob || "";
 	let selector = (survey.triggerConfig as OnClickTrigger).selector || "";
 
-	const triggerTypes = [
+	const displayTypes = [
+		{
+			name: "Floating Action Button",
+			value: "fab",
+			description: "A small floating button that opens the survey when clicked.",
+		},
+		{
+			name: "Modal Popup",
+			value: "modal",
+			description: "Survey is displayed as popup over the page content.",
+		},
+		{
+			name: "Toast Panel",
+			value: "toast",
+			description: "Survey is displayed as a floating panel at the bottom of the page.",
+		},
 		// {
-		// 	name: "Always displayed",
-		// 	value: "always",
-		// 	description: "Survey is displayed all the time.",
+		// 	name: "Context menu",
+		// 	value: "context",
+		// 	description: "Survey is displayed as a context menu when user clicks on the element.",
 		// },
+	];
+
+	const triggerTypes = [
 		{
 			name: "Page is loaded",
 			value: "onload",
 			description: "Survey is displayed when the page(s) loads.",
+			availableFor: ["fab", "modal", "toast"],
 		},
 		{
 			name: "User clicks on element",
 			value: "onclick",
 			description: "Survey is displayed when user clicks on a specific element.",
+			availableFor: ["modal", "toast"],
 		},
 	];
+
+	$: availableTriggerTypes = triggerTypes.filter((t) => t.availableFor.includes(displayType));
+	$: selectedTriggerType =
+		availableTriggerTypes.findIndex((t) => t.value === triggerType) !== -1
+			? triggerType
+			: availableTriggerTypes[0].value;
 
 	const limitTypes = [
 		{
@@ -55,6 +82,10 @@
 			description: "Survey is displayed every time the trigger is activated.",
 		},
 	];
+
+	const onDisplayTypeSelect = (type: string) => {
+		displayType = type as SurveyDisplayType;
+	};
 
 	const onTriggerTypeSelect = (type: string) => {
 		triggerType = type as SurveyTriggerType;
@@ -96,6 +127,7 @@
 		}
 
 		const result: Partial<SurveyInfo> = {
+			displayType: data.get("displayType") as SurveyDisplayType,
 			triggerConfig: triggerConfig,
 		};
 
@@ -107,31 +139,56 @@
 
 <div class="flex flex-col gap-2 h-full">
 	<form method="post" class="contents" on:submit|preventDefault={onSubmit}>
-		<label for="trigger" class="block w-full leading-6 text-slate-700">Show survey when</label>
-		<input type="hidden" name="trigger" bind:value={triggerType} />
+		<label for="displayType" class="block w-full leading-6 text-slate-700">Survey type</label>
+
+		<input type="hidden" name="displayType" bind:value={displayType} />
 
 		<div class="grid grid-cols-2 gap-2">
-			{#each triggerTypes as type}
+			{#each displayTypes as type}
 				<button
 					type="button"
-					on:click|preventDefault={() => onTriggerTypeSelect(type.value)}
+					on:click|preventDefault={() => onDisplayTypeSelect(type.value)}
 					class="relative grid grid-cols-[1fr_auto] grid-rows-[auto_1fr] gap-1 justify-items-start rounded-md bg-white p-4 shadow-md border hover:border-fuchsia-500"
-					class:border-fuchsia-500={triggerType === type.value}
-					class:border-slate-200={triggerType !== type.value}
+					class:border-fuchsia-500={displayType === type.value}
+					class:border-slate-200={displayType !== type.value}
 				>
 					<span class="col-start-1 row-start-1">{type.name}</span>
 					<span class="col-start-1 col-span-2 row-start-2 text-slate-500 text-sm text-left"
 						>{type.description}</span
 					>
 					<i
-						class:invisible={triggerType !== type.value}
+						class:invisible={displayType !== type.value}
 						class="col-start-2 row-start-1 fa-solid fa-check text-lg leading-4 text-fuchsia-500"
 					/>
 				</button>
 			{/each}
 		</div>
 
-		{#if triggerType === "onload"}
+		<label for="trigger" class="block w-full leading-6 text-slate-700 mt-4">Show survey when</label>
+		<input type="hidden" name="trigger" bind:value={selectedTriggerType} />
+
+		<div class="grid grid-cols-2 gap-2">
+			{#each availableTriggerTypes as type}
+				<button
+					type="button"
+					on:click|preventDefault={() => onTriggerTypeSelect(type.value)}
+					class="relative grid grid-cols-[1fr_auto] grid-rows-[auto_1fr] gap-1 justify-items-start rounded-md bg-white p-4 shadow-md border hover:border-fuchsia-500"
+					class:border-fuchsia-500={selectedTriggerType === type.value}
+					class:border-slate-200={selectedTriggerType !== type.value}
+				>
+					<span class="col-start-1 row-start-1">{type.name}</span>
+					<span class="col-start-1 col-span-2 row-start-2 text-slate-500 text-sm text-left"
+						>{type.description}</span
+					>
+					<i
+						class:invisible={selectedTriggerType !== type.value}
+						class="col-start-2 row-start-1 fa-solid fa-check text-lg leading-4 text-fuchsia-500"
+					/>
+				</button>
+			{/each}
+		</div>
+
+		{#if selectedTriggerType === "onload"}
 			<fieldset class="contents">
 				<!-- <legend class="font-bold mt-4">Trigger details</legend> -->
 				<label for="pageGlob" class="block w-full leading-6 text-slate-700 mt-4"
@@ -153,7 +210,7 @@
 			</fieldset>
 		{/if}
 
-		{#if triggerType === "onclick"}
+		{#if selectedTriggerType === "onclick"}
 			<fieldset class="contents">
 				<!-- <legend class="font-bold mt-4">Trigger details</legend> -->
 				<label for="selector" class="block w-full leading-6 text-slate-700 mt-4"
