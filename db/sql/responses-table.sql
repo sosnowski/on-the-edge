@@ -6,9 +6,10 @@ CREATE TABLE responses (
 
   survey_id EntityId not null,
   question_id EntityId not null,
+  instance_id text not null,
 
   user_token text not null,
-  session_token text not null,
+--   session_token text not null,
 
   content text null,
   

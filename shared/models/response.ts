@@ -5,8 +5,8 @@ export * from "./base";
 
 const Event = z.object({
 	surveyId: EntityId,
+	instanceId: z.string(),
 	userToken: Token,
-	sessionToken: Token,
 });
 
 export const SurveyResponse = Event.extend({
@@ -21,9 +21,16 @@ export const ActionEvent = Event.extend({
 	action: ActionType,
 });
 
+export const UserImpression = z.object({
+	userToken: Token,
+	surveyId: EntityId,
+	created: z.coerce.date(),
+});
+
 // export const SurveyEvent = z.union([ResponseEvent, ActionEvent]);
 
 export type SurveyResponse = z.infer<typeof SurveyResponse>;
 export type ActionType = z.infer<typeof ActionType>;
 export type ActionEvent = z.infer<typeof ActionEvent>;
 // export type SurveyEvent = z.infer<typeof SurveyEvent>;
+export type UserImpression = z.infer<typeof UserImpression>;

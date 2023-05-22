@@ -13,8 +13,9 @@ import { Env } from "./env";
 import { handler as putSurveyHandler } from "./handlers/put-survey";
 import { handler as getContainerInfo } from "./handlers/get-container";
 import { handler as getSurveyHandler } from "./handlers/get-survey";
-import { handler as putSurveyResponse } from "./handlers/put-response";
+import { handler as postSurveyResponse } from "./handlers/post-response";
 import { handler as deleteSurvey } from "./handlers/delete-survey";
+import { handler as postImpression } from "./handlers/post-impression";
 
 const router = Router();
 
@@ -27,11 +28,21 @@ router
 
 	.get("/containers/:containerId/surveys/:surveyId", getSurveyHandler as any)
 
-	.post("/surveys/:surveyId/response", putSurveyResponse as any)
+	.post("/surveys/:surveyId/impressions", postImpression as any)
+	.post("/surveys/:surveyId/responses", postSurveyResponse as any)
 
+	.options("*", () => {
+		console.log("OPTIONS REQUEST");
+		return new Response(null, {
+			status: 204,
+			headers: {
+				"Access-Control-Max-Age": (60 * 60 * 24).toString(),
+			},
+		});
+	})
 	.all("*", () => {
 		console.log("Error 404");
-		return new Response("404");
+		return new Response("404", { status: 404 });
 	});
 
 export default {
@@ -45,6 +56,7 @@ export default {
 		resp.headers.set("Access-Control-Allow-Origin", "*");
 		resp.headers.set("Access-Control-Allow-Methods", "*");
 		resp.headers.set("Access-Control-Allow-Headers", "*");
+		resp.headers.set("Access-Control-Expose-Headers", "x-user-token");
 		return resp;
 	},
 };

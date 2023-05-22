@@ -1,21 +1,30 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import SurveyForm from "surveys/form/SurveyForm.svelte";
 	import type { SurveyInfo } from "shared/models/survey";
-	import { postResponse } from "../loader";
+	import { postImpression, postResponse } from "../loader";
 
 	export let survey: SurveyInfo;
 	export let userToken: string;
-	export let sessionToken: string;
 
 	let page = 0;
 
-	const onFormSubmit = (event: CustomEvent<unknown>) => {
+	//TODO some better instanceId generator
+	// instance is used to group responses sent for the same survey instance
+	const instanceId = Math.random().toString(36).substring(2, 15);
+
+	onMount(async () => {
+		console.log("Survey mounted");
+		await postImpression(userToken, survey.id);
+	});
+
+	const onFormSubmit = async (event: CustomEvent<unknown>) => {
 		console.log("Form submitted");
 		console.log(event.detail);
 
 		page++;
 
-		postResponse(survey.id, userToken, sessionToken, event.detail);
+		await postResponse(userToken, survey.id, instanceId, event.detail);
 	};
 </script>
 

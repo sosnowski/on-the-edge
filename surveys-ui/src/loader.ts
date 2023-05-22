@@ -1,53 +1,44 @@
-import type { SurveyInfo, SurveyMetadata } from "shared/models/survey";
+import type { SurveyInfo, Token } from "shared/models/survey";
 import type { SurveyResponse } from "shared/models/response";
 import type { ContainerInfo } from "shared/models/container";
 
-export const loadSurveys = async (
+export const loadSurvey = async (
+	userToken: Token,
 	containerId: string,
-	surveysMeta: SurveyMetadata[],
-): Promise<SurveyInfo[]> => {
+	surveyId: string,
+): Promise<SurveyInfo | null> => {
 	console.log(`Loading survey for ${containerId}`);
 
-	const loadingSurveys = surveysMeta
-		.filter((survey) => {
-			return true; //later filter based on type of survey etc.
-		})
-		.map((survey) => {
-			return fetch(`http://localhost:8787/containers/${containerId}/surveys/${survey.surveyId}`, {
-				method: "GET",
-			});
-		});
+	const resp = await fetch(`http://localhost:8787/containers/${containerId}/surveys/${surveyId}`, {
+		method: "GET",
+		headers: {
+			"x-user-token": userToken,
+		},
+	});
 
-	const results = await Promise.all(loadingSurveys);
+	if (!resp.ok) {
+		console.error(resp.statusText);
+		throw new Error("Unable to load surveys! " + resp.url);
+	}
 
-	return Promise.all(
-		results.map((resp) => {
-			if (!resp.ok) {
-				console.error(resp.statusText);
-				throw new Error("Unable to load surveys! " + resp.url);
-			}
-			return resp.json();
-		}),
-	);
+	if (resp.status === 204) {
+		return null;
+	}
+
+	return resp.json();
 };
 
 export const loadContainerInfo = async (
+	userToken: Token,
 	containerId: string,
-	userToken?: string,
-	sessionToken?: string,
 ): Promise<ContainerInfo> => {
-	console.log(
-		"Loading Surveys for Workspace " + containerId + "..." + userToken + "..." + sessionToken,
-	);
+	console.log("Loading Surveys for Workspace " + containerId);
 	const url = new URL(`http://localhost:8787/containers/${containerId}`);
-	if (userToken) {
-		url.searchParams.append("userToken", userToken);
-	}
-	if (sessionToken) {
-		url.searchParams.append("sessionToken", sessionToken);
-	}
 	const resp = await fetch(url.toString(), {
 		method: "GET",
+		headers: {
+			"x-user-token": userToken,
+		},
 	});
 
 	if (!resp.ok) {
@@ -56,33 +47,56 @@ export const loadContainerInfo = async (
 	}
 
 	console.log("Surveys loaded, status: " + resp.status);
+	console.log("Survey loaded with user token " + resp.headers.get("x-user-token"));
 
-	return resp.json();
+	const containerInfo = await resp.json();
+
+	return {
+		...containerInfo,
+		userToken: resp.headers.get("x-user-token"),
+	};
 };
 
 export const postResponse = async (
+	userToken: Token,
 	surveyId: string,
-	userToken: string,
-	sessionToken: string,
+	instanceId: string,
 	response: SurveyResponse,
 ): Promise<void> => {
 	console.log(`Sending response`, response);
 
 	const surveyResponse: SurveyResponse = {
 		surveyId: surveyId,
-		userToken: userToken,
-		sessionToken: sessionToken,
+		instanceId: instanceId,
 		questionId: response.questionId,
 		content: response.content,
 	};
 
-	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/response`, {
+	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/responses`, {
 		method: "POST",
 		body: JSON.stringify(surveyResponse),
+		headers: {
+			"x-user-token": userToken,
+			"content-type": "application/json",
+		},
 	});
 
 	if (!resp.ok) {
 		console.error("Unable to save the response!", resp.statusText);
 		throw new Error("Ubable to save the response!");
+	}
+};
+
+export const postImpression = async (userToken: Token, surveyId: string): Promise<void> => {
+	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/impressions`, {
+		method: "POST",
+		headers: {
+			"x-user-token": userToken,
+		},
+	});
+
+	if (!resp.ok) {
+		console.error("Unable to save the impression!", resp.statusText);
+		throw new Error("Ubable to save the impression!");
 	}
 };

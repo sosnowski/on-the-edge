@@ -1,33 +1,22 @@
 <script lang="ts">
-	import { onDestroy } from "svelte";
+	import { createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import type { SurveyTrigger } from "shared/models/survey";
 	import { setTrigger } from "../triggers";
 
-	export let triggerConfig: SurveyTrigger;
-	let surveyActive = false;
+	export let visible: boolean;
+	const dispatch = createEventDispatcher<{
+		close: void;
+	}>();
+
 	let formVisible = false;
-
-	const clearTrigger = setTrigger(
-		triggerConfig,
-		() => {
-			surveyActive = true;
-		},
-		() => {
-			surveyActive = false;
-		},
-	);
-
-	onDestroy(() => {
-		clearTrigger();
-	});
 
 	const toggleSurvey = () => {
 		formVisible = !formVisible;
 	};
 </script>
 
-{#if surveyActive}
+{#if visible}
 	<button
 		transition:fade
 		on:click={toggleSurvey}

@@ -1,26 +1,20 @@
 <script lang="ts">
-	import { onDestroy } from "svelte";
+	import { createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import type { SurveyTrigger } from "shared/models/survey";
 	import { setTrigger } from "../triggers";
 
-	export let triggerConfig: SurveyTrigger;
-	let surveyVisible = false;
-
-	const clearTrigger = setTrigger(triggerConfig, () => {
-		surveyVisible = true;
-	});
-
-	onDestroy(() => {
-		clearTrigger();
-	});
+	export let visible: boolean;
+	const dispatch = createEventDispatcher<{
+		close: void;
+	}>();
 
 	const onClose = () => {
-		surveyVisible = false;
+		dispatch("close");
 	};
 </script>
 
-{#if surveyVisible}
+{#if visible}
 	<div transition:fade class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
 	<div transition:fade class="fixed inset-0 z-10 overflow-y-auto">

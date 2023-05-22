@@ -3,23 +3,28 @@ import { EntityId } from "./base";
 
 export * from "./base";
 
-export const SurveyDisplayType = z.enum(["fab", "modal", "toast"]); //FAB: Floating Action Button
+export const SurveyType = z.enum(["fab", "modal", "toast"]); //FAB: Floating Action Button
 export const SurveyStatus = z.enum(["active", "paused"]);
 export const QuestionType = z.enum(["text", "rating", "select"]);
+export const SurveyTriggerType = z.enum(["onload", "onclick", "always"]);
+export const TriggerLimit = z.enum(["none", "session", "user"]);
 
-export const OnLoadTrigger = z.object({
+const BaseTrigger = z.object({
+	type: SurveyTriggerType,
+	limit: TriggerLimit,
+});
+
+export const OnLoadTrigger = BaseTrigger.extend({
 	type: z.literal("onload"),
-	delay: z.number().min(0).optional(),
 	pageGlob: z.string().optional(),
 });
 
-export const OnClickTrigger = z.object({
+export const OnClickTrigger = BaseTrigger.extend({
 	type: z.literal("onclick"),
 	selector: z.string(),
-	delay: z.number().min(0).optional(),
 });
 
-export const AlwaysTrigger = z.object({
+export const AlwaysTrigger = BaseTrigger.extend({
 	type: z.literal("always"),
 });
 
@@ -34,7 +39,7 @@ export const Survey = z.object({
 	containerId: EntityId,
 	name: z.string(),
 	status: z.enum(["active", "inactive"]),
-	displayType: SurveyDisplayType,
+	displayType: SurveyType,
 	triggerConfig: SurveyTrigger,
 
 	published: PublishConfig.nullable().optional(),
@@ -95,5 +100,7 @@ export type SelectQuestion = z.infer<typeof SelectQuestion>;
 export type SurveyQuestion = z.infer<typeof SurveyQuestion>;
 export type SurveyMetadata = z.infer<typeof SurveyMetadata>;
 export type SurveyInfo = z.infer<typeof SurveyInfo>;
-export type SurveyDisplayType = z.infer<typeof SurveyDisplayType>;
+export type SurveyDisplayType = z.infer<typeof SurveyType>;
 export type PublishConfig = z.infer<typeof PublishConfig>;
+export type SurveyTriggerType = z.infer<typeof SurveyTriggerType>;
+export type TriggerLimit = z.infer<typeof TriggerLimit>;

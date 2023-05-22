@@ -1,4 +1,4 @@
-import { EntityId, SurveyResponse } from "shared/models/response";
+import { EntityId, SurveyResponse, Token } from "shared/models/response";
 import { saveResponses } from "db/responses";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
@@ -23,12 +23,20 @@ import { getDb } from "../db";
 
 export const handler = async (request: RouterRequest, env: Env): Promise<Response> => {
 	console.log("PUT RESPONSE HANDLER");
-	const surveyId = EntityId.parse(request.params["surveyId"]);
 
+	let surveyId: EntityId;
+	let userToken: Token;
 	let response;
 	try {
-		const payload = await request.json();
-		response = SurveyResponse.parse(payload);
+		surveyId = EntityId.parse(request.params.surveyId);
+		userToken = Token.parse(request.headers.get("x-user-token"));
+
+		const payload: any = await request.json();
+		response = SurveyResponse.parse({
+			...payload,
+			userToken: userToken,
+		});
+
 		if (response.surveyId !== surveyId) {
 			throw new Error("Invalid surveyId");
 		}

@@ -44,17 +44,23 @@ export const getAllSurveysByContainer = async (
 export const createDefaultSurvey = async (db: Db, containerId: string) => {
     console.log("SAVING NEW SURVEY");
     const survey: Survey = {
-        id: nanoid(30),
+        id: newEntityId(),
         containerId: containerId,
         name: "New Survey",
         displayType: "fab",
         status: "inactive",
         triggerConfig: {
-            type: "fixed",
+            type: "onload",
+            pageGlob: undefined,
+            limit: "session",
         },
     };
 
-    const { data, error } = await db.from("surveys").insert(toDbRecord(survey));
+    const { data, error } = await db
+        .from("surveys")
+        .insert(toDbRecord(survey))
+        .select()
+        .single();
 
     if (error) {
         console.error(error);
@@ -63,7 +69,7 @@ export const createDefaultSurvey = async (db: Db, containerId: string) => {
 
     console.log("SURVEY SAVED", data);
 
-    return survey.id;
+    return data.id;
 };
 
 export const getSurveyById = async (

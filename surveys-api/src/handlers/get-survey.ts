@@ -1,13 +1,14 @@
-import { EntityId, SurveyInfo } from "shared/models/survey";
+import { EntityId, SurveyInfo, Token } from "shared/models/survey";
 import { Env } from "../env";
 import { RouterRequest } from "../router";
+import { getSurvey } from "../store";
 
 export const handler = async (request: RouterRequest, env: Env): Promise<Response> => {
 	const containerId = EntityId.parse(request.params["containerId"]);
 	const surveyId = EntityId.parse(request.params["surveyId"]);
+	const userToken = Token.parse(request.headers.get("x-user-token"));
 
-	const KVKey = `Container:${containerId}:Survey:${surveyId}`;
-	const data = await env.KV.get(KVKey, "json");
+	const data = await getSurvey(env, containerId, surveyId);
 
 	if (!data) {
 		return new Response("", { status: 404 });
