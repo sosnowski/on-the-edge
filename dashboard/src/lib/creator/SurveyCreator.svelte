@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { SurveyQuestion, SurveyInfo, type PublishConfig, Survey } from "shared/models/survey";
+	import { SurveyQuestion, SurveyInfo, Survey } from "shared/models/survey";
 	import SideBar from "./SideBar.svelte";
 	import SurveyPreview from "./preview/SurveyPreview.svelte";
-
+	import { status, success, error, loading } from "$lib/status/status_store";
 	import TemplateSelector from "./templates/TemplateSelector.svelte";
 	import SettingsForm from "./settings/SettingsForm.svelte";
 	import QuestionForm from "./fields/QuestionForm.svelte";
@@ -156,59 +156,91 @@
 	};
 
 	const publishSurvey = async () => {
-		const res = await fetch(`/api/surveys/${currentSurvey.id}/publish`, {
-			method: "POST",
-		});
+		$status = loading("Publishing your survey...");
+		try {
+			const res = await fetch(`/api/surveys/${currentSurvey.id}/publish`, {
+				method: "POST",
+			});
 
-		console.log("PUBLISH RESPONSE", res);
-		console.log(res.status, res.statusText);
-		if (res.ok) {
+			console.log("PUBLISH RESPONSE", res);
+			console.log(res.status, res.statusText);
+			if (res.ok) {
+				const updatedSurvey = Survey.parse(await res.json());
+
+				currentSurvey = {
+					...currentSurvey,
+					...updatedSurvey,
+				};
+
+				$status = success("Survey published", 1500);
+			} else {
+				console.error("PUBLISH ERROR", res);
+				throw new Error("Error publishing survey");
+			}
+		} catch (e) {
+			console.error("PUBLISH ERROR", e);
+			$status = error("Error publishing survey", 2000);
+		}
+	};
+
+	const unPublishSurvey = async () => {
+		$status = loading("Deactivating your survey...");
+		try {
+			const res = await fetch(`/api/surveys/${currentSurvey.id}/unpublish`, {
+				method: "POST",
+			});
+
+			if (!res.ok) {
+				console.error("Unpublish ERROR", res);
+				throw new Error("Error deactivating survey");
+			}
+
+			console.log("UNPUBLISH RESPONSE", res);
+			console.log(res.status, res.statusText);
 			const updatedSurvey = Survey.parse(await res.json());
 
 			currentSurvey = {
 				...currentSurvey,
 				...updatedSurvey,
 			};
+
+			$status = success("Survey deactivated", 1500);
+		} catch (e) {
+			console.error("UNPUBLISH ERROR", e);
+			$status = error("Error deactivating survey", 2000);
 		}
-	};
-
-	const unPublishSurvey = async () => {
-		const res = await fetch(`/api/surveys/${currentSurvey.id}/unpublish`, {
-			method: "POST",
-		});
-
-		console.log("UNPUBLISH RESPONSE", res);
-		console.log(res.status, res.statusText);
-		const updatedSurvey = Survey.parse(await res.json());
-
-		currentSurvey = {
-			...currentSurvey,
-			...updatedSurvey,
-		};
 	};
 
 	const saveSurvey = async (survey: SurveyInfo) => {
 		if (saveTimer) {
 			clearTimeout(saveTimer);
 		}
+		$status = loading("Saving your survey...");
+
 		saveTimer = setTimeout(async () => {
 			console.log("SAVING SURVEY", survey);
-			const res = await fetch(`/api/surveys/${survey.id}`, {
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(survey),
-			});
-			console.log("SAVE RESPONSE", res);
-			console.log(res.status, res.statusText);
+			try {
+				const res = await fetch(`/api/surveys/${survey.id}`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(survey),
+				});
+				console.log("SAVE RESPONSE", res);
+				console.log(res.status, res.statusText);
 
-			const updatedSurvey = SurveyInfo.parse(await res.json());
+				const updatedSurvey = SurveyInfo.parse(await res.json());
 
-			currentSurvey = {
-				...updatedSurvey,
-			};
-			dirty = false;
+				currentSurvey = {
+					...updatedSurvey,
+				};
+				dirty = false;
+				$status = success("Survey saved", 1500);
+			} catch (e) {
+				console.error("SAVE ERROR", e);
+				$status = error("Error saving survey", 2000);
+			}
 		}, 1000);
 	};
 
