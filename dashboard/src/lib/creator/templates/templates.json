@@ -1,7 +1,8 @@
 [
 	{
 		"name": "NPS - Net Promoter Score",
-		"description": "This is a cool survey",
+		"icon": "fa-regular fa-comments",
+		"description": "Net Promoter Score is a customer loyalty metric, used to gauge the loyalty of a firm's customer relationships. It serves as an alternative to traditional customer satisfaction research and claims to be correlated with revenue growth.",
 		"questions": [
 			{
 				"label": "How likely is it that you would recommend our product to a friend or colleague?",
@@ -15,10 +16,26 @@
 	},
 	{
 		"name": "Simple Feedback Form",
-		"description": "A basic feedback form to gather open feedback",
+		"icon": "fa-regular fa-clipboard",
+		"description": "A basic feedback form, with a singe text field to gather open feedback.",
 		"questions": [
 			{
 				"label": "Let us know what you think about our product",
+				"type": "text"
+			}
+		]
+	},
+	{
+		"name": "Customer Satisfaction Survey",
+		"icon": "fa-regular fa-star",
+		"description": "Gather customer satisfaction score together with a follow up question to gather open feedback.",
+		"questions": [
+			{
+				"label": "How satisfied are you with our product?",
+				"type": "rating"
+			},
+			{
+				"label": "What is the main reason for your score?",
 				"type": "text"
 			}
 		]

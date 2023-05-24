@@ -10,6 +10,7 @@
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
 	import { formatDate } from "$lib/helpers";
 	import InfoForm from "./info/InfoForm.svelte";
+	import { onMount } from "svelte";
 
 	export let survey: SurveyInfo;
 
@@ -111,6 +112,13 @@
 	};
 
 	let currentSideBarPanel: keyof typeof sideBarPanels | undefined = undefined;
+
+	onMount(() => {
+		if (survey.questions.length === 0) {
+			console.log("Survey is empty, showing templates");
+			showPanel("templates");
+		}
+	});
 
 	const showPanel = (panel: keyof typeof sideBarPanels) => {
 		currentSideBarPanel = panel;

@@ -12,6 +12,7 @@
 		const data = new FormData(e.target as HTMLFormElement);
 
 		dispatch("submit", data.get("response") as string);
+		(e.target as HTMLFormElement).reset();
 	};
 </script>
 
