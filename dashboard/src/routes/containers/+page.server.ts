@@ -8,7 +8,7 @@ export const load = (async ({ depends }) => {
 	let containers = [];
 	try {
 		console.log("Getting all containers");
-		const db = getDb();
+		const db = await getDb();
 		containers = await getAllContainers(db);
 
 		console.log("Containers loaded: ", containers);

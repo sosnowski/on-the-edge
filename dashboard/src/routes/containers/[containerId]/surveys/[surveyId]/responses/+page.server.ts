@@ -7,7 +7,7 @@ import type { PageServerLoad } from "./$types";
 export const load = (async ({ params }) => {
 	const containerId = EntityId.parse(params.containerId);
 	const surveyId = EntityId.parse(params.surveyId);
-	const db = getDb();
+	const db = await getDb();
 
 	const survey = getSurveyInfoById(db, surveyId);
 

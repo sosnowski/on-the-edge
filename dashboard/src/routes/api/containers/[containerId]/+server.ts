@@ -17,7 +17,7 @@ export const PUT = (async ({ request, params }) => {
 	}
 
 	try {
-		const db = getDb();
+		const db = await getDb();
 		const updatedContainer = await updateContainer(db, { ...container, id: containerId });
 
 		return json(updatedContainer);

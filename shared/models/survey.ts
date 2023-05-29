@@ -55,6 +55,11 @@ const BaseQuestion = z.object({
 	order: z.number().optional(),
 });
 
+export const QuestionDbRecord = BaseQuestion.extend({
+	config: z.record(z.unknown()).optional(),
+	surveyId: EntityId,
+});
+
 export const TextQuestion = BaseQuestion.extend({
 	type: z.literal("text"),
 });
@@ -104,3 +109,4 @@ export type SurveyDisplayType = z.infer<typeof SurveyType>;
 export type PublishConfig = z.infer<typeof PublishConfig>;
 export type SurveyTriggerType = z.infer<typeof SurveyTriggerType>;
 export type TriggerLimit = z.infer<typeof TriggerLimit>;
+export type QuestionDbRecord = z.infer<typeof QuestionDbRecord>;

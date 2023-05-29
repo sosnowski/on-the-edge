@@ -16,4 +16,5 @@ export interface Env {
 
 	SUPABASE_API_KEY: string;
 	SUPABASE_URL: string;
+	SUPABASE_CONNECTION_URL: string;
 }

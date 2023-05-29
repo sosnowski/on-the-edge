@@ -2,12 +2,13 @@ import { nanoid } from "nanoid";
 import { Db } from "./client";
 import {
     PublishConfig,
+    QuestionDbRecord,
     Survey,
     SurveyInfo,
     SurveyQuestion,
 } from "shared/models/survey";
 import { fromDbRecord, toDbRecord } from "./helper";
-import { newEntityId } from "shared/models/base";
+import { EntityId, newEntityId } from "shared/models/base";
 
 export const parseSurvey = (row: Record<string, any>): Survey => {
     return Survey.parse(fromDbRecord<Survey>(row));
@@ -25,23 +26,21 @@ export const getAllSurveysByContainer = async (
     containerId: string
 ): Promise<Survey[]> => {
     console.log("Executing getAllSurveysByContainer query");
-    const { data, error } = await db
-        .from("surveys")
-        .select()
-        .eq("container_id", containerId)
-        .order("updated", { ascending: false });
 
-    if (error) {
-        console.error(error);
-        throw new Error("Error fetching surveys");
-    }
+    const res = await db.query(
+        "SELECT * FROM surveys WHERE container_id = $1 ORDER BY updated DESC",
+        [containerId]
+    );
 
-    console.log("Query result: ", data);
+    console.log("Query result: ", res);
 
-    return (data || []).map(parseSurvey);
+    return (res.rows || []).map(parseSurvey);
 };
 
-export const createDefaultSurvey = async (db: Db, containerId: string) => {
+export const createDefaultSurvey = async (
+    db: Db,
+    containerId: string
+): Promise<EntityId> => {
     console.log("SAVING NEW SURVEY");
     const survey: Survey = {
         id: newEntityId(),
@@ -56,20 +55,25 @@ export const createDefaultSurvey = async (db: Db, containerId: string) => {
         },
     };
 
-    const { data, error } = await db
-        .from("surveys")
-        .insert(toDbRecord(survey))
-        .select()
-        .single();
+    const res = await db.query(
+        "INSERT INTO surveys (id, container_id, name, display_type, status, trigger_config) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [
+            survey.id,
+            survey.containerId,
+            survey.name,
+            survey.displayType,
+            survey.status,
+            survey.triggerConfig,
+        ]
+    );
 
-    if (error) {
-        console.error(error);
+    if (!res.rows || res.rows.length !== 1) {
         throw new Error("Error inserting survey");
     }
 
-    console.log("SURVEY SAVED", data);
+    console.log("SURVEY SAVED", res.rows);
 
-    return data.id;
+    return res.rows[0].id;
 };
 
 export const getSurveyById = async (
@@ -78,24 +82,18 @@ export const getSurveyById = async (
 ): Promise<Survey | null> => {
     console.log("GET SURVEY BY ID " + surveyId);
 
-    const { data, error } = await db
-        .from("surveys")
-        .select()
-        .eq("id", surveyId)
-        .single();
+    const res = await db.query(
+        "SELECT * FROM surveys WHERE id = $1 ORDER BY updated DESC",
+        [surveyId]
+    );
 
-    if (error) {
-        console.error(error);
-        throw new Error("Error fetching survey");
-    }
+    console.log("SURVEY QUERY RESULT: ", res);
 
-    console.log("SURVEY QUERY RESULT: ", data);
-
-    if (!data) {
+    if (!res.rows || res.rows.length !== 1) {
         return null;
     }
 
-    return parseSurvey(data);
+    return parseSurvey(res.rows[0]);
 };
 
 export const getSurveyInfoById = async (
@@ -105,33 +103,26 @@ export const getSurveyInfoById = async (
     console.log("GET SURVEY INFO BY ID " + surveyId);
 
     const res = await Promise.all([
-        db
-            .from("surveys")
-            .select("*, containers(name)")
-            .eq("id", surveyId)
-            .single(),
-        db
-            .from("questions")
-            .select("*")
-            .eq("survey_id", surveyId)
-            .order("order", { ascending: true }),
+        db.query(
+            "SELECT surveys.*, containers.name as container_name FROM surveys LEFT JOIN containers ON surveys.container_id = containers.id WHERE surveys.id = $1",
+            [surveyId]
+        ),
+        db.query(
+            'SELECT * FROM questions WHERE survey_id = $1 ORDER BY "order" ASC',
+            [surveyId]
+        ),
     ]);
 
     console.log("SURVEY INFO QUERY RESULT: ", res[0], res[1]);
 
-    if (res[0].error || res[1].error) {
-        console.error(res[0].error || res[1].error);
-        throw new Error("Error fetching survey info");
-    }
-
-    if (!res[0].data) {
+    if (!res[0].rows || res[0].rows.length !== 1) {
         return null;
     }
 
     return SurveyInfo.parse({
-        ...parseSurvey(res[0].data),
-        containerName: res[0].data.containers?.name,
-        questions: res[1].data?.map(parseQuestion) || [],
+        ...parseSurvey(res[0].rows[0]),
+        containerName: res[0].rows[0].container_name,
+        questions: res[1].rows?.map(parseQuestion) || [],
     });
 };
 
@@ -140,64 +131,103 @@ export const saveSurveyInfo = async (
     surveyInfo: SurveyInfo
 ): Promise<SurveyInfo> => {
     console.log("SAVING SURVEY INFO", surveyInfo);
+    //TODO add transaction
 
     const { questions, ...survey } = surveyInfo;
 
     survey.updated = new Date();
-    const saveSurvey = db
-        .from("surveys")
-        .update(toDbRecord(survey, ["containerName"]))
-        .eq("id", survey.id)
-        .select()
-        .single();
 
-    const questionsRecords = questions.map((q, index) => {
-        let config: Record<string, unknown> | null;
-        if (q.type === "select") {
-            config = {
-                options: q.options,
-            };
-        } else {
-            config = null;
-        }
+    const saveSurvey = db.query(
+        "UPDATE surveys SET name = $1, display_type = $2, status = $3, trigger_config = $4, updated = $5 WHERE id = $6 RETURNING *",
+        [
+            survey.name,
+            survey.displayType,
+            survey.status,
+            survey.triggerConfig,
+            survey.updated,
+            survey.id,
+        ]
+    );
 
+    const questionsToSave = questions.map((q, i) => {
         return {
+            ...q,
             id: q.id || newEntityId(),
-            survey_id: survey.id,
-            ...toDbRecord(q, ["options"]),
-            order: index,
-            config: config,
+            order: i,
         };
     });
-
     console.log("QUESTIONS TO SAVE");
-    console.log(questionsRecords);
-    const saveQuestions = db
-        .from("questions")
-        .upsert(questionsRecords)
-        .select();
+    console.log(questionsToSave);
+    console.log(
+        'INSERT INTO questions (id, survey_id, label, type, "order", config) VALUES ' +
+            questionsToSave
+                .map(
+                    (q, i) =>
+                        `( $${i * 6 + 1}, $${i * 6 + 2}, $${i * 6 + 3}, $${
+                            i * 6 + 4
+                        }, $${i * 6 + 5}, $${i * 6 + 6})`
+                )
+                .join(",") +
+            ' ON CONFLICT (id) DO UPDATE SET label = EXCLUDED.label, type = EXCLUDED.type, "order" = EXCLUDED.order, config = EXCLUDED.config RETURNING *',
+        questionsToSave.flatMap((q) => [
+            q.id,
+            surveyInfo.id,
+            q.label,
+            q.type,
+            q.order,
+            q.type === "select" ? { options: q.options } : undefined,
+        ])
+    );
+
+    const saveQuestions = db.query(
+        'INSERT INTO questions (id, survey_id, label, type, "order", config) VALUES ' +
+            questionsToSave
+                .map(
+                    (q, i) =>
+                        `( $${i * 6 + 1}, $${i * 6 + 2}, $${i * 6 + 3}, $${
+                            i * 6 + 4
+                        }, $${i * 6 + 5}, $${i * 6 + 6})`
+                )
+                .join(",") +
+            ' ON CONFLICT (id) DO UPDATE SET label = EXCLUDED.label, type = EXCLUDED.type, "order" = EXCLUDED.order, config = EXCLUDED.config RETURNING *',
+        questionsToSave.flatMap((q) => [
+            q.id,
+            surveyInfo.id,
+            q.label,
+            q.type,
+            q.order,
+            q.type === "select" ? { options: q.options } : undefined,
+        ])
+    );
 
     console.log("QUESTIONS TO REMOVE");
-    console.log("ID NOT IN (" + questions.map((q) => q.id).join(",") + ")");
-    const removeQuestions = db
-        .from("questions")
-        .delete()
-        .not("id", "in", `(${questions.map((q) => q.id).join(",")})`)
-        .eq("survey_id", survey.id);
+    console.log(
+        "ID NOT IN (" + questionsToSave.map((q) => q.id).join(",") + ")"
+    );
+
+    console.log("REMOVE QUESTIONS QUERY");
+    console.log(
+        "DELETE FROM questions WHERE survey_id = $1 AND id NOT IN (" +
+            questionsToSave.map((q, i) => `$${i + 2}`).join(",") +
+            ")",
+        [surveyInfo.id, ...questionsToSave.map((q) => q.id)]
+    );
+
+    const removeQuestions = db.query(
+        "DELETE FROM questions WHERE survey_id = $1 AND id NOT IN (" +
+            questionsToSave.map((q, i) => `$${i + 2}`).join(",") +
+            ")",
+        [surveyInfo.id, ...questionsToSave.map((q) => q.id)]
+    );
 
     const res = await Promise.all([saveSurvey, saveQuestions, removeQuestions]);
 
-    if (res[0].error || res[1].error || res[2].error) {
-        console.error(res[0].error || res[1].error || res[2].error);
-        throw new Error("Error saving survey info");
-    }
-
-    console.log("SURVEY INFO SAVED", res[0].data, res[1].data, res[2].data);
+    console.log("SURVEY INFO SAVED", res[0], res[1], res[2]);
 
     return SurveyInfo.parse({
         ...surveyInfo,
-        ...parseSurvey(res[0].data),
-        questions: res[1].data?.map(parseQuestion) || [],
+        ...parseSurvey(res[0].rows[0]),
+        questions: res[1].rows?.map(parseQuestion) || [],
     });
 };
 
@@ -208,23 +238,18 @@ export const publishSurvey = async (
 ): Promise<Survey> => {
     console.log("PUBLISHING SURVEY", surveyId);
 
-    const { data, error } = await db
-        .from("surveys")
-        .update({
-            published: publishConfig,
-        })
-        .eq("id", surveyId)
-        .select()
-        .single();
+    const res = await db.query(
+        "UPDATE surveys SET published = $1 WHERE id = $2 RETURNING *",
+        [publishConfig, surveyId]
+    );
 
-    if (error) {
-        console.error(error);
+    if (!res.rows || res.rows.length !== 1) {
         throw new Error("Error publishing survey");
     }
 
-    console.log("SURVEY PUBLISHED", data);
+    console.log("SURVEY PUBLISHED", res);
 
-    return Survey.parse(fromDbRecord<Survey>(data));
+    return Survey.parse(fromDbRecord<Survey>(res.rows[0]));
 };
 
 export const unPublishSurvey = async (
@@ -233,21 +258,16 @@ export const unPublishSurvey = async (
 ): Promise<Survey> => {
     console.log("UNPUBLISHING SURVEY", surveyId);
 
-    const { data, error } = await db
-        .from("surveys")
-        .update({
-            published: null,
-        })
-        .eq("id", surveyId)
-        .select()
-        .single();
+    const res = await db.query(
+        "UPDATE surveys SET published = null WHERE id = $1 RETURNING *",
+        [surveyId]
+    );
 
-    if (error) {
-        console.error(error);
+    if (!res.rows || res.rows.length !== 1) {
         throw new Error("Error unpublishing survey");
     }
 
-    console.log("SURVEY UNPUBLISHED", data);
+    console.log("SURVEY UNPUBLISHED", res);
 
-    return Survey.parse(fromDbRecord<Survey>(data));
+    return Survey.parse(fromDbRecord<Survey>(res.rows[0]));
 };

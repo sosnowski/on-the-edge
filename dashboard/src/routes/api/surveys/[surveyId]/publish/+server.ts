@@ -10,7 +10,7 @@ import { EntityId } from "shared/models/base";
 export const POST = (async ({ params }) => {
 	console.log("PUBLISH SURVEY");
 	const surveyId = EntityId.parse(params.surveyId);
-	const db = getDb();
+	const db = await getDb();
 
 	const surveyInfo = await getSurveyInfoById(db, surveyId);
 

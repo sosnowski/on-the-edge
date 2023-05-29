@@ -14,7 +14,7 @@ export const POST = (async ({ request }) => {
 	}
 
 	try {
-		const db = getDb();
+		const db = await getDb();
 		const newContainer = await createContainer(db, container);
 
 		return json(newContainer);

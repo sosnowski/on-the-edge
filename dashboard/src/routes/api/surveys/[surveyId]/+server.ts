@@ -6,7 +6,7 @@ import { SurveyInfo } from "shared/models/survey";
 export const PUT = (async ({ request }) => {
 	const data = await request.json();
 	const surveyInfo = SurveyInfo.parse(data);
-	const db = getDb();
+	const db = await getDb();
 
 	console.log("UPDATE SURVEY INFO");
 	console.log(surveyInfo);

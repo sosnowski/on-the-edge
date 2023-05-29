@@ -48,7 +48,7 @@ export const handler = async (request: RouterRequest, env: Env): Promise<Respons
 	console.log("SAVING RESPONSE EVENT TO DB", response);
 
 	try {
-		const db = getDb(env);
+		const db = await getDb(env);
 		await saveResponses(db, [response]);
 	} catch (e) {
 		console.error("Unable to save response to db", e);

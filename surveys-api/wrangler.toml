@@ -10,3 +10,4 @@ kv_namespaces = [
 services = [
     { binding = "EVENTS_QUEUE", service = "events-consumer" },
 ]
+node_compat = true

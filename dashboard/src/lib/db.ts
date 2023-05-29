@@ -1,6 +1,6 @@
-import { getDb as getDbClient } from "db/client";
-import { SUPABASE_API_KEY, SUPABASE_URL } from "$env/static/private";
+import { getDb as getDbClient, type Db } from "db/client";
+import { SUPABASE_CONNECTION_URL } from "$env/static/private";
 
-export const getDb = () => {
-	return getDbClient(SUPABASE_URL, SUPABASE_API_KEY);
+export const getDb = (): Promise<Db> => {
+	return getDbClient(SUPABASE_CONNECTION_URL);
 };

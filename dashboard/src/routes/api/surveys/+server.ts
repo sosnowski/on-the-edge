@@ -11,7 +11,7 @@ export const POST = (async ({ request }) => {
 	let containerId;
 	try {
 		containerId = EntityId.parse(data.get("containerId") as string);
-		const db = getDb();
+		const db = await getDb();
 
 		surveyId = await createDefaultSurvey(db, containerId);
 		console.log("NEW SURVEY ID: ", surveyId);

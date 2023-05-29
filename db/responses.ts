@@ -1,6 +1,7 @@
 import { SurveyResponse } from "shared/models/response";
 import { Db } from "./client";
 import { toDbRecord } from "./helper";
+import { QueryResult } from "pg";
 
 export const saveResponses = async (
     db: Db,
@@ -8,18 +9,46 @@ export const saveResponses = async (
 ): Promise<void> => {
     console.log("Saving responses", responses);
 
-    const res = await db
-        .from("responses")
-        .insert(responses.map((res) => toDbRecord(res)));
+    console.log("SAVING RESPONSE QUERY");
+    console.log(
+        `INSERT INTO responses (survey_id, instance_id, user_token, question_id, content) VALUES ${responses
+            .map(
+                (q, i) =>
+                    `( $${i * 6 + 1}, $${i * 6 + 2}, $${i * 6 + 3}, $${
+                        i * 6 + 4
+                    }, $${i * 6 + 5})`
+            )
+            .join(", ")}`,
+        responses.flatMap((resp) => {
+            return [
+                resp.surveyId,
+                resp.instanceId,
+                resp.userToken,
+                resp.questionId,
+                resp.content,
+            ];
+        })
+    );
 
-    console.log(res);
-
-    const { error } = res;
-
-    if (error) {
-        console.error(error);
-        throw new Error("Error saving responses");
-    }
+    await db.query(
+        `INSERT INTO responses (survey_id, instance_id, user_token, question_id, content) VALUES ${responses
+            .map(
+                (q, i) =>
+                    `( $${i * 6 + 1}, $${i * 6 + 2}, $${i * 6 + 3}, $${
+                        i * 6 + 4
+                    }, $${i * 6 + 5})`
+            )
+            .join(", ")}`,
+        responses.flatMap((resp) => {
+            return [
+                resp.surveyId,
+                resp.instanceId,
+                resp.userToken,
+                resp.questionId,
+                resp.content,
+            ];
+        })
+    );
 };
 
 export const getResponsesBySurveyId = async (
@@ -28,22 +57,14 @@ export const getResponsesBySurveyId = async (
 ): Promise<SurveyResponse[]> => {
     console.log("Getting responses for survey", surveyId);
 
-    const res = await db
-        .from("responses")
-        .select("*")
-        .eq("survey_id", surveyId)
-        .order("order", { ascending: false });
+    const res = await db.query(
+        "SELECT * FROM responses WHERE survey_id = $1 ORDER BY created DESC",
+        [surveyId]
+    );
 
     console.log(res);
 
-    const { error, data } = res;
-
-    if (error) {
-        console.error(error);
-        throw new Error("Error getting responses");
-    }
-
-    return data.map((row) => SurveyResponse.parse(row));
+    return (res.rows || []).map((row) => SurveyResponse.parse(row));
 };
 
 /**

@@ -1,11 +1,11 @@
-import {
-    createClient,
-    SupabaseClient,
-    SupabaseClientOptions,
-} from "@supabase/supabase-js";
+import { Client } from "pg";
 
-export type Db = SupabaseClient;
+export type Db = Client;
 
-export const getDb = (url: string, apiKey: string): Db => {
-    return createClient(url, apiKey);
+export const getDb = async (connectionString: string): Promise<Db> => {
+    const client = new Client({
+        connectionString,
+    });
+    await client.connect();
+    return client;
 };
