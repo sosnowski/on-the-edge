@@ -11,11 +11,4 @@
 	}>();
 </script>
 
-<span>{value}</span><button
-	class="btn-std"
-	on:click={() =>
-		dispatch("action", {
-			name: "addTag",
-			detail: "new-tag",
-		})}>Add tag</button
->
+<p class="text-right">{value}</p>

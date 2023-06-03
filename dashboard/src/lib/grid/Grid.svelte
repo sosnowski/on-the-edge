@@ -4,7 +4,7 @@
 	import ColumnCmp from "./Column.svelte";
 	import type { CellAction, Column, GridAction } from "./grid";
 
-	export let columns: Column[];
+	export let columns: Column<any>[];
 	export let data: Record<string, unknown>[];
 	export let keyField: string;
 	export let allRecords: number;
@@ -35,18 +35,21 @@
 		<table class="border border-slate-100 min-w-full">
 			<thead>
 				<tr>
-					{#each columns as column}
-						<th class="border border-slate-100 px-4 py-2 font-normal">{column.label}</th>
+					{#each columns as column (column.id)}
+						<th class="border border-slate-100 px-4 py-2 truncate font-normal" title={column.label}
+							>{column.label}</th
+						>
 					{/each}
 				</tr>
 			</thead>
 			<tbody>
-				{#each data as record (record[keyField])}
+				{#each data as record, index (record[keyField])}
 					<tr>
-						{#each columns as column}
+						{#each columns as column (column.id)}
 							<ColumnCmp
 								{column}
 								{record}
+								{index}
 								on:action={onColumnAction}
 								let:column
 								let:record
@@ -77,9 +80,9 @@
 			<div>
 				<p class="text-sm text-gray-700">
 					Showing
-					<span class="font-medium">{page * pageSize}</span>
+					<span class="font-medium">{(page - 1) * pageSize + 1}</span>
 					to
-					<span class="font-medium">{page * pageSize + data.length}</span>
+					<span class="font-medium">{(page - 1) * pageSize + data.length}</span>
 					of
 					<span class="font-medium">{allRecords}</span>
 					results

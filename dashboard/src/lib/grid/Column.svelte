@@ -4,12 +4,13 @@
 
 	export let column: Column;
 	export let record: Record<string, any>;
+	export let index: number;
 
 	const dispatch = createEventDispatcher<{
 		action: GridAction;
 	}>();
 
-	$: value = record[column.field];
+	$: value = column.get(record, index);
 
 	const onCellAction = (event: CustomEvent<CellAction>) => {
 		console.log("Column on Cell Action!", event.detail);

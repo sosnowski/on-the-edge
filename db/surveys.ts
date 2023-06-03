@@ -113,8 +113,6 @@ export const getSurveyInfoById = async (
         ),
     ]);
 
-    console.log("SURVEY INFO QUERY RESULT: ", res[0], res[1]);
-
     if (!res[0].rows || res[0].rows.length !== 1) {
         return null;
     }

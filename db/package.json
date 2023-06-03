@@ -12,7 +12,6 @@
     "@types/pg": "^8.10.1"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.14.0",
     "nanoid": "^4.0.1",
     "pg": "^8.11.0"
   }

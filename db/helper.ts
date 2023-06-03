@@ -19,6 +19,15 @@ export const toDbRecord = <T>(
     return snakeCaseObj;
 };
 
+const isObj = (obj: unknown): obj is Record<string, unknown> => {
+    return (
+        obj !== null &&
+        typeof obj === "object" &&
+        !(obj instanceof Date) &&
+        !Array.isArray(obj)
+    );
+};
+
 export const fromDbRecord = <T>(
     record: Record<string, unknown>,
     skip: string[] = []
@@ -26,7 +35,20 @@ export const fromDbRecord = <T>(
     const camelCaseObj: Record<string, unknown> = {};
     for (const key in record) {
         if (!skip.includes(key)) {
-            camelCaseObj[snakeCaseToCamelCase(key)] = record[key];
+            let value;
+            if (Array.isArray(record[key])) {
+                value = (record[key] as unknown[]).map((item) => {
+                    return isObj(item) ? fromDbRecord(item, skip) : item;
+                });
+            } else if (isObj(record[key])) {
+                value = fromDbRecord(
+                    record[key] as Record<string, unknown>,
+                    skip
+                );
+            } else {
+                value = record[key];
+            }
+            camelCaseObj[snakeCaseToCamelCase(key)] = value;
         }
     }
     return camelCaseObj as T;
