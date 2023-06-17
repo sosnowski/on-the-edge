@@ -1,12 +1,13 @@
 import {
     ResponsesByInstance,
     SurveyResponse,
-    type SurveyResponsesDetails,
+    type ResponsesDetailsByInstance,
+    Tag,
 } from "shared/models/response";
 import { Db } from "./client";
 import { fromDbRecord, toDbRecord } from "./helper";
 import { QueryResult } from "pg";
-import { EntityId } from "shared/models/base";
+import { EntityId, newEntityId } from "shared/models/base";
 import { nanoid } from "nanoid";
 import { SurveyInfo } from "shared/models/survey";
 
@@ -83,11 +84,19 @@ export const getResponsesGroupedByInstanceId = async (
     surveyId: EntityId,
     page: number,
     pageSize: number
-): Promise<SurveyResponsesDetails[]> => {
+): Promise<ResponsesDetailsByInstance[]> => {
     const limitFrom = (page - 1) * pageSize;
 
     console.log(
-        `SELECT instance_id, array_agg(DISTINCT user_token) as user_tokens, max(responses.created) as last_responded, json_agg(json_build_object('question_id', question_id, 'content', content)) as responses 
+        `SELECT instance_id, array_agg(DISTINCT user_token) as user_tokens, max(responses.created) as last_responded,
+        json_agg(json_build_object(
+            'question_id', responses.question_id,
+            'content', responses.content,
+            'id', responses.id,
+            'tags', array(
+                SELECT json_build_object('id', tag_id, 'label', tags.label, 'color', tags.color) FROM tags_responses LEFT JOIN tags ON tags_responses.tag_id = tags.id  WHERE response_id = responses.id
+            )
+        )) as responses 
         FROM responses 
         WHERE responses.survey_id = $1 GROUP BY responses.instance_id 
         ORDER BY last_responded DESC
@@ -95,7 +104,15 @@ export const getResponsesGroupedByInstanceId = async (
         [surveyId, pageSize, limitFrom]
     );
     const res = await db.query(
-        `SELECT instance_id, array_agg(DISTINCT user_token) as user_tokens, max(responses.created) as last_responded, json_agg(json_build_object('question_id', question_id, 'content', content)) as responses 
+        `SELECT instance_id, array_agg(DISTINCT user_token) as user_tokens, max(responses.created) as last_responded,
+        json_agg(json_build_object(
+            'question_id', responses.question_id,
+            'content', responses.content,
+            'id', responses.id,
+            'tags', array(
+                SELECT json_build_object('id', tag_id, 'label', tags.label, 'color', tags.color) FROM tags_responses LEFT JOIN tags ON tags_responses.tag_id = tags.id  WHERE response_id = responses.id
+            )
+        )) as responses 
         FROM responses 
         WHERE responses.survey_id = $1 GROUP BY responses.instance_id 
         ORDER BY last_responded DESC
@@ -108,7 +125,7 @@ export const getResponsesGroupedByInstanceId = async (
     });
 
     return responsesByInstance.map((resp) => {
-        const respDetails: SurveyResponsesDetails = {
+        const respDetails: ResponsesDetailsByInstance = {
             instanceId: resp.instanceId,
             userToken: resp.userTokens[0],
             lastResponded: resp.lastResponded,
@@ -187,6 +204,65 @@ export const seedResponsesForSurvey = async (
     }
 };
 
-/**
- * SELECT instance_id, json_agg(json_build_object('question_id', question_id, 'label', questions.label, 'content', content)) as response_ids FROM responses LEFT JOIN questions ON responses.question_id = questions.id GROUP BY instance_id;
- */
+export const createTag = async (
+    db: Db,
+    containerId: EntityId,
+    tag: Tag
+): Promise<Tag> => {
+    const res = await db.query(
+        "INSERT INTO tags (id, container_id, label, color) VALUES ($1, $2, $3, $4) RETURNING *",
+        [newEntityId(), containerId, tag.label, tag.color]
+    );
+
+    return Tag.parse(fromDbRecord(res.rows[0]));
+};
+
+export const assignTagsToResponse = async (
+    db: Db,
+    responseId: number,
+    tags: Tag[]
+): Promise<Tag[]> => {
+    //TODO Transaction
+    console.log(
+        `INSERT INTO tags_responses (response_id, tag_id) VALUES ${tags
+            .map((t, i) => `($1, $${i + 2})`)
+            .join(", ")} ON CONFLICT (response_id, tag_id) DO NOTHING`,
+        [responseId, ...tags.map((t) => t.id)]
+    );
+    const saveTagsQuery = db.query(
+        `INSERT INTO tags_responses (response_id, tag_id) VALUES ${tags
+            .map((t, i) => `($1, $${i + 2})`)
+            .join(", ")} ON CONFLICT (response_id, tag_id) DO NOTHING`,
+        [responseId, ...tags.map((t) => t.id)]
+    );
+
+    console.log(
+        `DELETE FROM tags_responses WHERE response_id = $1 AND tag_id NOT IN (${tags
+            .map((t, i) => `$${i + 2}`)
+            .join(", ")})`,
+        [responseId, ...tags.map((t) => t.id)]
+    );
+    const removeOldTagsQuery = db.query(
+        `DELETE FROM tags_responses WHERE response_id = $1 AND tag_id NOT IN (${tags
+            .map((t, i) => `$${i + 2}`)
+            .join(", ")})`,
+        [responseId, ...tags.map((t) => t.id)]
+    );
+
+    await Promise.all([saveTagsQuery, removeOldTagsQuery]);
+
+    return tags;
+};
+
+export const deleteTag = async (
+    db: Db,
+    containerId: EntityId,
+    tagId: EntityId
+): Promise<void> => {
+    //TODO Transaction
+    await db.query("DELETE FROM tags_responses WHERE tag_id = $1", [tagId]);
+    await db.query("DELETE FROM tags WHERE id = $1 AND container_id = $2", [
+        tagId,
+        containerId,
+    ]);
+};

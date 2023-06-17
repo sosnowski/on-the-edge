@@ -13,7 +13,7 @@
 
 	const dispatch = createEventDispatcher<{
 		page: number;
-		action: GridAction;
+		action: GridAction<any, any>;
 	}>();
 
 	$: numOfPages = Math.ceil(allRecords / pageSize);

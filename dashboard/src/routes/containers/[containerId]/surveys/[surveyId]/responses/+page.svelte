@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import Grid from "$lib/grid/Grid.svelte";
-	import TextCell from "$lib/grid/TextCell.svelte";
+	import TagsCell from "$lib/grid/TagsCell.svelte";
 	import type { Column, GridAction } from "$lib/grid/grid";
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
-	import type { SurveyResponsesDetails } from "shared/models/response";
+	import type { ResponsesDetailsByInstance, Tag } from "shared/models/response";
 	import type { PageData } from "./$types";
 	import { formatDate } from "$lib/helpers";
 	import RatingCell from "$lib/grid/RatingCell.svelte";
 	import ActionsCell from "$lib/grid/ActionsCell.svelte";
+	import type { SurveyQuestion } from "shared/models/survey";
 
 	export let data: PageData;
 
@@ -16,12 +17,16 @@
 	$: pageSize = data.pageSize!;
 	$: countAll = data.countAll!;
 	$: surveyInfo = data.survey!;
-	$: records = data.responses as Record<string, unknown>[];
+	$: records = data.responses!;
+
+	$: {
+		console.log(records);
+	}
 
 	$: columns = [
 		{
 			label: "#",
-			get: (_, index) => `${(page - 1) * pageSize + index + 1}.`,
+			get: (row, index) => `${(page - 1) * pageSize + index + 1}. ${row.instanceId}`,
 			id: "index",
 		},
 		{
@@ -29,7 +34,7 @@
 			get: (row) => formatDate(row.lastResponded),
 			id: "received",
 		},
-		...(data.survey?.questions.map((question): Column<SurveyResponsesDetails> => {
+		...(data.survey?.questions.map((question): Column<ResponsesDetailsByInstance> => {
 			return {
 				label: question.label,
 				get: (row) => {
@@ -42,7 +47,10 @@
 					}
 					return row.responses[question.id!]?.content || "-";
 				},
-				cmp: question.type === "rating" ? RatingCell : TextCell,
+				cmp: question.type === "rating" ? RatingCell : TagsCell,
+				data: {
+					question: question,
+				},
 				id: question.id!,
 			};
 		}) || []),
@@ -54,8 +62,59 @@
 		},
 	];
 
-	const onGridAction = (event: CustomEvent<GridAction<SurveyResponsesDetails>>) => {
+	const onTagUpdate = async (
+		action: GridAction<
+			ResponsesDetailsByInstance,
+			{
+				question: SurveyQuestion;
+				tags: Tag[];
+			}
+		>,
+	): Promise<void> => {
+		console.log("Tag update", action);
+
+		const { record, detail } = action;
+		if (detail) {
+			const { question, tags } = detail!;
+
+			// assign tags to proper element in records
+			records = records.map((r) => {
+				if (r.instanceId === record.instanceId) {
+					r.responses[question.id!]!.tags = tags;
+				}
+				return r;
+			});
+
+			const response = record.responses[question.id!];
+
+			const res = await fetch(`/api/surveys/${surveyInfo.id}/responses/${response.id}/tags`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(tags),
+			});
+
+			if (!res.ok) {
+				console.error("Failed to update tags", res);
+			}
+			console.log("Tags updated");
+		}
+	};
+
+	const onGridAction = (event: CustomEvent<GridAction<any, any>>) => {
 		console.log("Grid On Action", event.detail);
+		if (event.detail.name === "tags:update") {
+			onTagUpdate(
+				event.detail as GridAction<
+					ResponsesDetailsByInstance,
+					{
+						question: SurveyQuestion;
+						tags: Tag[];
+					}
+				>,
+			);
+		}
 	};
 
 	const changePage = (event: CustomEvent<number>) => {
@@ -88,5 +147,6 @@
 		{page}
 		{pageSize}
 		on:page={changePage}
+		on:action={onGridAction}
 	/>
 </div>

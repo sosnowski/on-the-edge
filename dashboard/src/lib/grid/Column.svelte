@@ -23,6 +23,6 @@
 	};
 </script>
 
-<td class="border border-slate-100 px-4 py-2 text-sm"
+<td class="border border-slate-100 p-3 text-sm relative"
 	><slot {column} {record} {value} {onCellAction} /></td
 >

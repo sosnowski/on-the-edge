@@ -1,20 +1,21 @@
 import type { SvelteComponent } from "svelte";
 
-export type Column<T = Record<string, unknown>> = {
+export type Column<T = Record<string, unknown>, D = Record<string, unknown>> = {
 	label: string;
 	get: (record: T, index: number) => unknown;
 	cmp?: any;
 	id: string;
+	data?: D;
 };
 
-export type CellAction = {
+export type CellAction<T = unknown> = {
 	name: string;
-	detail?: unknown;
+	detail?: T;
 };
 
-export type GridAction<T = Record<string, unknown>> = {
+export type GridAction<T = Record<string, unknown>, D = unknown> = {
 	name: string;
-	record: Record<string, unknown>;
+	record: T;
 	column: Column<T>;
-	detail?: unknown;
+	detail?: D;
 };
