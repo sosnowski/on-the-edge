@@ -2,7 +2,8 @@
 	import { createEventDispatcher } from "svelte";
 	import Cell from "./Cell.svelte";
 	import ColumnCmp from "./Column.svelte";
-	import type { CellAction, Column, GridAction } from "./grid";
+	import type { CellAction, Column, Filters, GridAction } from "./grid";
+	import FiltersPanel from "./FiltersPanel.svelte";
 
 	export let columns: Column<any>[];
 	export let data: Record<string, unknown>[];
@@ -10,10 +11,12 @@
 	export let allRecords: number;
 	export let page: number;
 	export let pageSize: number = 25;
+	export let filters: Filters;
 
 	const dispatch = createEventDispatcher<{
 		page: number;
 		action: GridAction<any, any>;
+		filters: Filters;
 	}>();
 
 	$: numOfPages = Math.ceil(allRecords / pageSize);
@@ -28,50 +31,60 @@
 		console.log("Grid On Column Action", event.detail);
 		dispatch("action", event.detail);
 	};
+
+	const onFiltersUpdate = (event: CustomEvent<Filters>) => {
+		console.log("Grid On Filters Update", event.detail);
+		dispatch("filters", event.detail);
+	};
 </script>
 
-<div class="flex flex-col w-full h-full">
-	<div class="flex-1 overflow-auto">
-		<table class="border border-slate-100 min-w-full">
-			<thead>
-				<tr>
-					{#each columns as column (column.id)}
-						<th class="border border-slate-100 px-4 py-2 truncate font-normal" title={column.label}
-							>{column.label}</th
-						>
-					{/each}
-				</tr>
-			</thead>
-			<tbody>
-				{#each data as record, index (record[keyField])}
+<div class="w-full flex flex-col gap-2">
+	<FiltersPanel on:update={onFiltersUpdate} activeFilters={filters} />
+	<div class="flex flex-col w-full h-full bg-white rounded-md shadow-md">
+		<div class="flex-1 overflow-auto">
+			<table class="border border-slate-100 min-w-full">
+				<thead>
 					<tr>
 						{#each columns as column (column.id)}
-							<ColumnCmp
-								{column}
-								{record}
-								{index}
-								on:action={onColumnAction}
-								let:column
-								let:record
-								let:value
-								let:onCellAction
+							<th
+								class="border border-slate-100 px-4 py-2 truncate font-normal"
+								title={column.label}>{column.label}</th
 							>
-								<svelte:component
-									this={column.cmp || Cell}
-									{column}
-									{record}
-									{value}
-									on:action={onCellAction}
-								/>
-							</ColumnCmp>
 						{/each}
 					</tr>
-				{/each}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					{#each data as record, index (record[keyField])}
+						<tr>
+							{#each columns as column (column.id)}
+								<ColumnCmp
+									{column}
+									{record}
+									{index}
+									on:action={onColumnAction}
+									let:column
+									let:record
+									let:value
+									let:onCellAction
+								>
+									<svelte:component
+										this={column.cmp || Cell}
+										{column}
+										{record}
+										{value}
+										on:action={onCellAction}
+									/>
+								</ColumnCmp>
+							{/each}
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
 	</div>
-
-	<div class="mt-auto flex items-center justify-between bg-white px-4 py-3 sm:px-6">
+	<div
+		class="mt-auto flex items-center justify-between bg-white rounded-md shadow-md px-4 py-3 sm:px-6"
+	>
 		<div class="flex flex-1 justify-between sm:hidden">
 			<button class="btn-std">Previous</button>
 			<button class="btn-std">Next</button>

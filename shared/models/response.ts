@@ -41,21 +41,31 @@ export const ResponseDetails = SurveyResponse.pick({
 	content: true,
 	id: true,
 }).extend({
-	tags: z.array(Tag).optional(),
+	tags: z.array(EntityId).optional().nullable(),
 });
 
 export const ResponsesByInstance = z.object({
 	instanceId: z.string(),
-	userTokens: z.array(Token),
+	userToken: Token,
+	surveyId: EntityId,
 	lastResponded: z.coerce.date(),
 	responses: z.array(ResponseDetails),
+	tagsAll: z.array(z.union([EntityId, z.null()])).default([]),
 });
 
 export const ResponsesDetailsByInstance = z.object({
 	instanceId: z.string(),
 	userToken: Token,
+	surveyId: EntityId,
 	lastResponded: z.coerce.date(),
 	responses: z.record(ResponseDetails),
+	tagsAll: z.array(EntityId),
+});
+
+export const ResponsesFilters = z.object({
+	receivedFrom: z.coerce.date().optional(),
+	receivedTo: z.coerce.date().optional(),
+	tags: z.array(EntityId).optional(),
 });
 
 // export const SurveyEvent = z.union([ResponseEvent, ActionEvent]);
@@ -69,3 +79,4 @@ export type ResponseDetails = z.infer<typeof ResponseDetails>;
 export type ResponsesByInstance = z.infer<typeof ResponsesByInstance>;
 export type ResponsesDetailsByInstance = z.infer<typeof ResponsesDetailsByInstance>;
 export type Tag = z.infer<typeof Tag>;
+export type ResponsesFilters = z.infer<typeof ResponsesFilters>;

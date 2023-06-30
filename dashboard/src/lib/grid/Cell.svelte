@@ -6,4 +6,4 @@
 	export let value: unknown;
 </script>
 
-<span>{value}</span>
+<span class="text-slate-600">{value}</span>

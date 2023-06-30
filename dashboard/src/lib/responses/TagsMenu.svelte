@@ -103,7 +103,7 @@
 
 <div
 	transition:fade
-	class="absolute flex flex-col my-2 p-2 top-full left-0 right-0 bg-white border border-slate-100 rounded-md shadow-md z-20"
+	class="absolute flex flex-col my-2 p-2 top-full right-0 bg-white border border-slate-100 rounded-md shadow-md z-20 w-96"
 >
 	<p class="my-2">Selected tags</p>
 

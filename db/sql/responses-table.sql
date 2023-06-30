@@ -24,3 +24,22 @@ CREATE TABLE responses (
       FOREIGN KEY(question_id) 
       REFERENCES questions(id)
 );
+
+create view responses_by_instance as
+SELECT instance_id, last_responded, survey_ids[1] as survey_id, user_tokens[1] as user_token, responses, tags_all FROM (
+  SELECT responses.instance_id, max(responses.created) as last_responded, array_agg(DISTINCT survey_id) as survey_ids, array_agg(DISTINCT user_token) as user_tokens, json_agg(json_build_object(
+  'question_id', responses.question_id,
+  'content', responses.content,
+  'id', responses.id,
+  'tags', tags_arr
+)) as responses, array_agg(distinct t_all) as tags_all
+    FROM responses
+    LEFT JOIN (
+      SELECT tags_responses.response_id, array_agg(tags.id) as tags_arr
+      FROM tags_responses
+      LEFT JOIN tags ON tags_responses.tag_id = tags.id
+      GROUP BY tags_responses.response_id
+    ) as tr ON responses.id = tr.response_id
+    LEFT JOIN lateral (SELECT unnest(tags_arr) as t_all) as unnested ON true
+    GROUP BY instance_id
+) gr

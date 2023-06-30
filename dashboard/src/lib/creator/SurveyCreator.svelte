@@ -8,7 +8,7 @@
 	import QuestionForm from "./fields/QuestionForm.svelte";
 	import type { Template } from "./templates/template";
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
-	import { formatDate } from "$lib/helpers";
+	import { formatDateTime } from "$lib/helpers";
 	import InfoForm from "./info/InfoForm.svelte";
 	import { onMount } from "svelte";
 
@@ -276,7 +276,7 @@
 	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
 	{#if isPublished}
 		<p class="text-sm">
-			Published from {formatDate(currentSurvey.published?.start)}
+			Published from {formatDateTime(currentSurvey.published?.start)}
 		</p>
 		<button class="btn-primary bg-red-600" on:click={unPublishSurvey}>Deactivate</button>
 		{#if updatedAfterPublished}
@@ -309,7 +309,7 @@
 
 <div class="flex flex-row gap-2 m-4">
 	{#if currentSurvey.updated}
-		<p class="text-sm text-slate-800">Last updated: {formatDate(currentSurvey.updated)}</p>
+		<p class="text-sm text-slate-800">Last updated: {formatDateTime(currentSurvey.updated)}</p>
 	{/if}
 </div>
 

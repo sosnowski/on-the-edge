@@ -4,20 +4,27 @@
 	import TagsCell from "$lib/grid/TagsCell.svelte";
 	import type { Column, GridAction } from "$lib/grid/grid";
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
-	import type { ResponsesDetailsByInstance, Tag } from "shared/models/response";
+	import type { ResponsesDetailsByInstance, ResponsesFilters, Tag } from "shared/models/response";
 	import type { PageData } from "./$types";
-	import { formatDate } from "$lib/helpers";
+	import { formatDateTime } from "$lib/helpers";
 	import RatingCell from "$lib/grid/RatingCell.svelte";
 	import ActionsCell from "$lib/grid/ActionsCell.svelte";
 	import type { SurveyQuestion } from "shared/models/survey";
 
 	export let data: PageData;
 
+	let filters: ResponsesFilters = {
+		receivedFrom: new Date(),
+		receivedTo: new Date(),
+		tags: [],
+	};
+
 	$: page = data.page!;
 	$: pageSize = data.pageSize!;
 	$: countAll = data.countAll!;
 	$: surveyInfo = data.survey!;
 	$: records = data.responses!;
+	$: filters = data.filters!;
 
 	$: {
 		console.log(records);
@@ -31,7 +38,7 @@
 		},
 		{
 			label: "Received",
-			get: (row) => formatDate(row.lastResponded),
+			get: (row) => formatDateTime(row.lastResponded),
 			id: "received",
 		},
 		...(data.survey?.questions.map((question): Column<ResponsesDetailsByInstance> => {
@@ -80,7 +87,7 @@
 			// assign tags to proper element in records
 			records = records.map((r) => {
 				if (r.instanceId === record.instanceId) {
-					r.responses[question.id!]!.tags = tags;
+					r.responses[question.id!]!.tags = tags.map((t) => t.id!);
 				}
 				return r;
 			});
@@ -117,6 +124,31 @@
 		}
 	};
 
+	const onGridFilters = (event: CustomEvent<ResponsesFilters>) => {
+		console.log("On Grid Filters", event.detail);
+
+		const filters = event.detail;
+
+		const url = new URL(window.location.href);
+		if (filters.receivedFrom) {
+			url.searchParams.set("from", filters.receivedFrom.getTime().toString());
+		} else {
+			url.searchParams.delete("from");
+		}
+		if (filters.receivedTo) {
+			url.searchParams.set("to", filters.receivedTo.getTime().toString());
+		} else {
+			url.searchParams.delete("to");
+		}
+		if (filters.tags && filters.tags.length > 0) {
+			url.searchParams.set("tags", filters.tags.join(","));
+		} else {
+			url.searchParams.delete("tags");
+		}
+
+		goto(url.toString(), { noScroll: true });
+	};
+
 	const changePage = (event: CustomEvent<number>) => {
 		console.log("Change page", event.detail);
 		const url = new URL(window.location.href);
@@ -137,16 +169,17 @@
 />
 
 <h1 class="m-4 text-2xl text-slate-600">Responses</h1>
-
-<div class="mx-4 bg-white rounded-md shadow-md flex-1">
+<div class="flex-1 mx-4 pb-4">
 	<Grid
 		{columns}
 		data={records}
 		keyField="instanceId"
+		{filters}
 		allRecords={countAll || 0}
 		{page}
 		{pageSize}
 		on:page={changePage}
+		on:filters={onGridFilters}
 		on:action={onGridAction}
 	/>
 </div>

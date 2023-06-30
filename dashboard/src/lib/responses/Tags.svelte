@@ -25,8 +25,9 @@
 	{/each}
 	<button
 		on:click={() => (editMode = !editMode)}
-		class="ml-auto mt-auto btn-std px-2 py-1 text-xs shadow-none gap-1"
-		>{editMode ? "Close" : "Edit"} <i class="fa-solid fa-tags" /></button
+		class="ml-auto mt-auto btn-std px-2 py-1 text-xs shadow-none gap-1 w-14"
+		class:bg-slate-100={editMode}
+		class:border-slate-300={editMode}>Edit<i class="fa-solid fa-tags" /></button
 	>
 
 	{#if editMode}

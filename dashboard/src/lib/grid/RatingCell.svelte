@@ -11,4 +11,4 @@
 	}>();
 </script>
 
-<p class="text-right">{value}</p>
+<p class="text-right text-slate-600">{value}</p>

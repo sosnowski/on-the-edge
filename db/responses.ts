@@ -3,10 +3,10 @@ import {
     SurveyResponse,
     type ResponsesDetailsByInstance,
     Tag,
+    ResponsesFilters,
 } from "shared/models/response";
 import { Db } from "./client";
-import { fromDbRecord, toDbRecord } from "./helper";
-import { QueryResult } from "pg";
+import { fromDbRecord } from "./helper";
 import { EntityId, newEntityId } from "shared/models/base";
 import { nanoid } from "nanoid";
 import { SurveyInfo } from "shared/models/survey";
@@ -82,43 +82,32 @@ export const getResponsesBySurveyId = async (
 export const getResponsesGroupedByInstanceId = async (
     db: Db,
     surveyId: EntityId,
+    filters: Required<ResponsesFilters>,
     page: number,
     pageSize: number
 ): Promise<ResponsesDetailsByInstance[]> => {
     const limitFrom = (page - 1) * pageSize;
 
-    console.log(
-        `SELECT instance_id, array_agg(DISTINCT user_token) as user_tokens, max(responses.created) as last_responded,
-        json_agg(json_build_object(
-            'question_id', responses.question_id,
-            'content', responses.content,
-            'id', responses.id,
-            'tags', array(
-                SELECT json_build_object('id', tag_id, 'label', tags.label, 'color', tags.color) FROM tags_responses LEFT JOIN tags ON tags_responses.tag_id = tags.id  WHERE response_id = responses.id
-            )
-        )) as responses 
-        FROM responses 
-        WHERE responses.survey_id = $1 GROUP BY responses.instance_id 
-        ORDER BY last_responded DESC
-        LIMIT $2 OFFSET $3`,
-        [surveyId, pageSize, limitFrom]
-    );
-    const res = await db.query(
-        `SELECT instance_id, array_agg(DISTINCT user_token) as user_tokens, max(responses.created) as last_responded,
-        json_agg(json_build_object(
-            'question_id', responses.question_id,
-            'content', responses.content,
-            'id', responses.id,
-            'tags', array(
-                SELECT json_build_object('id', tag_id, 'label', tags.label, 'color', tags.color) FROM tags_responses LEFT JOIN tags ON tags_responses.tag_id = tags.id  WHERE response_id = responses.id
-            )
-        )) as responses 
-        FROM responses 
-        WHERE responses.survey_id = $1 GROUP BY responses.instance_id 
-        ORDER BY last_responded DESC
-        LIMIT $2 OFFSET $3`,
-        [surveyId, pageSize, limitFrom]
-    );
+    const queryParams: unknown[] = [
+        surveyId,
+        filters.receivedFrom,
+        filters.receivedTo,
+        pageSize,
+        limitFrom,
+        ...(filters.tags || []),
+    ];
+    const query = `
+    SELECT instance_id, user_token, survey_id, last_responded, tags_all::text[], responses
+    FROM responses_by_instance as rbi
+    WHERE rbi.survey_id = $1 AND rbi.last_responded BETWEEN $2 AND $3
+    ${filters.tags
+        .map((t, i) => `AND $${i + 6} = ANY(rbi.tags_all) `)
+        .join(" ")}
+    ORDER BY rbi.last_responded DESC
+    LIMIT $4 OFFSET $5`;
+
+    console.log(query, queryParams);
+    const res = await db.query(query, queryParams);
 
     const responsesByInstance = res.rows.map((row) => {
         return ResponsesByInstance.parse(fromDbRecord(row));
@@ -127,8 +116,10 @@ export const getResponsesGroupedByInstanceId = async (
     return responsesByInstance.map((resp) => {
         const respDetails: ResponsesDetailsByInstance = {
             instanceId: resp.instanceId,
-            userToken: resp.userTokens[0],
+            userToken: resp.userToken,
+            surveyId: resp.surveyId,
             lastResponded: resp.lastResponded,
+            tagsAll: resp.tagsAll?.filter((t): t is string => t !== null) || [],
             responses: {},
         };
 
@@ -141,12 +132,24 @@ export const getResponsesGroupedByInstanceId = async (
 
 export const countResponsesByInstanceId = async (
     db: Db,
-    surveyId: EntityId
+    surveyId: EntityId,
+    filters: Required<ResponsesFilters>
 ): Promise<number> => {
-    const res = await db.query(
-        "SELECT COUNT(DISTINCT instance_id) as count FROM responses WHERE responses.survey_id = $1",
-        [surveyId]
-    );
+    const queryParams: unknown[] = [
+        surveyId,
+        filters.receivedFrom,
+        filters.receivedTo,
+        ...(filters.tags || []),
+    ];
+    const query = `
+    SELECT COUNT(instance_id) as count
+    FROM responses_by_instance as rbi
+    WHERE rbi.survey_id = $1 AND rbi.last_responded BETWEEN $2 AND $3
+    ${filters.tags
+        .map((t, i) => `AND $${i + 4} = ANY(rbi.tags_all) `)
+        .join(" ")}`;
+
+    const res = await db.query(query, queryParams);
 
     return +res.rows[0].count;
 };

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
-	import { formatDate } from "$lib/helpers";
+	import { formatDateTime } from "$lib/helpers";
 	import type { PageData } from "./$types";
 
 	export let data: PageData;
@@ -46,7 +46,8 @@
 				<div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
 					{#if survey.updated}
 						<p class="whitespace-nowrap">
-							Last updated <time datetime="2023-03-17T00:00Z">{formatDate(survey.updated)}</time>
+							Last updated <time datetime="2023-03-17T00:00Z">{formatDateTime(survey.updated)}</time
+							>
 						</p>
 					{/if}
 					<!-- <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
