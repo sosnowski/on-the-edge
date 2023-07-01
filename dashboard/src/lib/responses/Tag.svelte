@@ -48,7 +48,7 @@
 </script>
 
 <span
-	class={`inline-flex items-center gap-x-1 rounded-md ${color.bg} px-2 py-1 text-xs font-medium ${color.text} ring-1 ring-inset ${color.ring}`}
+	class={`inline-flex items-center gap-x-1 rounded ${color.bg} px-2 py-1 text-xs font-medium ${color.text} ring-1 ring-inset ${color.ring}`}
 	class:cursor-pointer={selectMode}
 	on:click={() => dispatch("click", tag)}
 	on:keyup={() => dispatch("click", tag)}

@@ -38,7 +38,7 @@
 <div class="absolute inset-0 overflow-hidden flex justify-center items-center">
 	<div class="grid grid-cols-[auto_1fr_auto_auto] grid-rows-[1fr_auto] w-full max-w-2xl gap-4">
 		<div
-			class="col-start-2 row-start-1 overflow-hidden rounded-lg bg-white text-left shadow-lg transition-all"
+			class="col-start-2 row-start-1 overflow-hidden rounded bg-white text-left shadow-lg transition-all"
 		>
 			{#if survey.questions.length > 0}
 				<SurveyForm {survey} {page} on:submit={onFormSubmit} />
@@ -55,7 +55,7 @@
 				title="Previous question"
 				on:click={onPrevPage}
 				disabled={page === 0}
-				class="bg-white text-2xl text-fuchsia-500 rounded-md shadow-md p-4 opacity-90 hover:opacity-100 disabled:opacity-20"
+				class="bg-white text-2xl text-fuchsia-500 rounded shadow p-4 opacity-90 hover:opacity-100 disabled:opacity-20"
 			>
 				<i class="fa-solid fa-chevron-left" />
 			</button>
@@ -66,7 +66,7 @@
 				title="Next question"
 				on:click={onNextPage}
 				disabled={page >= survey.questions.length - 1}
-				class="bg-white text-2xl text-fuchsia-500 rounded-md shadow-md p-4 opacity-90 hover:opacity-100 disabled:opacity-20"
+				class="bg-white text-2xl text-fuchsia-500 rounded shadow p-4 opacity-90 hover:opacity-100 disabled:opacity-20"
 			>
 				<i class="fa-solid fa-chevron-right" />
 			</button>
@@ -78,7 +78,7 @@
 					dispatch("add");
 				}}
 				title="Add a new question"
-				class="bg-white text-2xl text-fuchsia-500 rounded-md shadow-md p-4 opacity-90 hover:opacity-100"
+				class="bg-white text-2xl text-fuchsia-500 rounded shadow p-4 opacity-90 hover:opacity-100"
 			>
 				<i class="fa-solid fa-plus" />
 			</button>

@@ -53,9 +53,9 @@
 	{#each fieldTypes as fieldType}
 		<button
 			on:click={() => onFieldTypeSelect(fieldType)}
-			class="relative grid grid-cols-[1fr_auto] grid-rows-[auto_1fr] gap-2 justify-items-start rounded-md bg-white p-4 shadow-md border hover:border-fuchsia-500"
+			class="relative grid grid-cols-[1fr_auto] grid-rows-[auto_1fr] gap-2 justify-items-start rounded bg-white p-4 shadow border hover:border-fuchsia-500"
 			class:border-fuchsia-500={selectedFieldType === fieldType.id}
-			class:border-slate-200={selectedFieldType !== fieldType.id}
+			class:border-slate-100={selectedFieldType !== fieldType.id}
 		>
 			<span class="font-bold col-start-1 row-start-1">{fieldType.name}</span>
 			<span class="col-start-1 col-span-2 row-start-2 text-slate-500 text-sm text-left"

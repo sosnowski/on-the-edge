@@ -31,6 +31,11 @@
 	>
 
 	{#if editMode}
-		<TagsMenu {selectedTags} {containerId} on:save={onTagsSave} />
+		<TagsMenu
+			{selectedTags}
+			{containerId}
+			on:save={onTagsSave}
+			on:close={() => (editMode = false)}
+		/>
 	{/if}
 </p>

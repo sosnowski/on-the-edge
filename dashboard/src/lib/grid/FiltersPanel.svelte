@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { fade } from "svelte/transition";
 	import TagCmp from "$lib/responses/Tag.svelte";
 	import { getTagsStore } from "$lib/responses/tags_store";
 	import { createEventDispatcher, getContext } from "svelte";
 	import type { Container } from "shared/models/container";
 	import { formatDate, formatDateTime, formatDateToInput } from "$lib/helpers";
 	import type { ResponsesFilters, Tag } from "shared/models/response";
+	import Modal from "$lib/modal/Modal.svelte";
 
 	export let activeFilters: ResponsesFilters = {
 		receivedFrom: undefined,
@@ -126,9 +126,9 @@
 		>
 	{/if}
 	{#if showFiltersList}
-		<div
-			transition:fade
-			class="absolute top-full mt-0.5 right-0 bg-white shadow-md rounded-md border border-slate-100 flex flex-col gap-2 p-4 text-sm z-20 max-w-md"
+		<Modal
+			class="top-full mt-0.5 right-0 flex flex-col gap-2 p-4 text-sm max-w-md"
+			on:close={toggleFiltersList}
 		>
 			<form class="contents" on:submit|preventDefault={onSubmit}>
 				<div class="grid grid-rows-2 grid-cols-[auto_auto_auto_auto] gap-1 items-center">
@@ -168,8 +168,9 @@
 							><i class="fa-solid fa-plus" /></button
 						>
 						{#if showTagsList}
-							<div
-								class="absolute top-full right-0 mt-0.5 bg-white shadow-md rounded-md border border-slate-100 flex flex-row flex-wrap gap-2 p-4 items-start justify-start w-64"
+							<Modal
+								on:close={toggleTagsList}
+								class="top-full right-0 mt-0.5 flex flex-row flex-wrap gap-2 p-4 items-start justify-start w-64"
 							>
 								<p class="w-full">Select tag to filter</p>
 								{#each availableTags as tag}
@@ -181,7 +182,7 @@
 										}}
 									/>
 								{/each}
-							</div>
+							</Modal>
 						{/if}
 					</div>
 				</div>
@@ -192,6 +193,6 @@
 					<button class="btn-std" type="button" on:click={toggleFiltersList}>Close</button>
 				</div>
 			</form>
-		</div>
+		</Modal>
 	{/if}
 </div>

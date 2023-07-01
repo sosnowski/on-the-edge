@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { EntityId, Tag } from "shared/models/response";
 	import TagCmp from "$lib/responses/Tag.svelte";
-	import { fade } from "svelte/transition";
 	import { createEventDispatcher } from "svelte";
 	import { addTag, deleteTag, getTagsStore } from "./tags_store";
+	import Modal from "$lib/modal/Modal.svelte";
 
 	export let containerId: EntityId;
 	export let selectedTags: Tag[] = [];
@@ -13,6 +13,7 @@
 	const dispatch = createEventDispatcher<{
 		save: Tag[];
 		create: Tag;
+		close: void;
 	}>();
 
 	const colors = [
@@ -101,10 +102,7 @@
 	};
 </script>
 
-<div
-	transition:fade
-	class="absolute flex flex-col my-2 p-2 top-full right-0 bg-white border border-slate-100 rounded-md shadow-md z-20 w-96"
->
+<Modal class="flex flex-col my-2 top-full right-0 w-96" on:close={() => dispatch("close")}>
 	<p class="my-2">Selected tags</p>
 
 	<div class="flex flex-row flex-wrap gap-2">
@@ -166,4 +164,4 @@
 		</form>
 	</div>
 	<button on:click={onTagsSave} class="btn-primary text-xs self-center">Save</button>
-</div>
+</Modal>

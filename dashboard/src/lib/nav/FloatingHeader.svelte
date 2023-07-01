@@ -4,7 +4,7 @@
 
 <div class="flex flex-row justify-start items-center">
 	<header
-		class="flex flex-row justify-center items-center gap-4 py-2 px-4 bg-white shadow-md m-4 border border-slate-100 rounded-md self-start"
+		class="panel-std flex flex-row justify-center items-center gap-4 py-2 px-4 m-4 self-start"
 	>
 		<nav class="flex gap-1 items-center">
 			<a href="/" class="text-slate-900">

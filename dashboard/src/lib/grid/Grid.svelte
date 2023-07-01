@@ -40,7 +40,7 @@
 
 <div class="w-full flex flex-col gap-2">
 	<FiltersPanel on:update={onFiltersUpdate} activeFilters={filters} />
-	<div class="flex flex-col w-full h-full bg-white rounded-md shadow-md">
+	<div class="panel-std flex flex-col w-full h-full">
 		<div class="flex-1 overflow-auto">
 			<table class="border border-slate-100 min-w-full">
 				<thead>
@@ -82,9 +82,7 @@
 			</table>
 		</div>
 	</div>
-	<div
-		class="mt-auto flex items-center justify-between bg-white rounded-md shadow-md px-4 py-3 sm:px-6"
-	>
+	<div class="panel-std mt-auto flex items-center justify-between px-4 py-3 sm:px-6">
 		<div class="flex flex-1 justify-between sm:hidden">
 			<button class="btn-std">Previous</button>
 			<button class="btn-std">Next</button>

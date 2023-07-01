@@ -11,6 +11,8 @@
 		{ label: "", value: "" },
 	];
 
+	let label = question?.label || "";
+
 	const onSubmit = (e: Event) => {
 		console.log("submit");
 		const data = new FormData(e.target as HTMLFormElement);
@@ -52,8 +54,10 @@
 			required
 			class="field-std block w-full"
 			placeholder="How do you rate your experience?"
-			value={question?.label || ""}
+			bind:value={label}
+			maxlength="200"
 		/>
+		<p class="text-sm text-slate-600 text-right">{label.length}/200</p>
 
 		<label for="options[0]" class="block w-full leading-6 text-slate-700 mt-4"
 			>Available options</label

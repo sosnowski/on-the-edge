@@ -9,10 +9,11 @@
 <FloatingHeader
 	breadCrumbs={[{ name: "Containers", href: "/containers" }, { name: data.container.name }]}
 >
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
 	<button class="text-lg" title="Container settings">
 		<i class="fa-solid fa-gear" />
 	</button>
-
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
 	<form action="/api/surveys" method="POST">
 		<input type="hidden" name="containerId" value={data.container.id} />
 		<button type="submit" class="btn-primary" title="Add new survey"> Add new survey </button>
@@ -21,9 +22,7 @@
 
 <h1 class="m-4 text-2xl text-slate-600">Surveys in this container</h1>
 
-<ul
-	class="divide-y divide-slate-100 bg-white shadow-md m-4 rounded-md border border-slate-100 px-4"
->
+<ul class="panel-std divide-y divide-slate-100 m-4 px-4">
 	{#each data.surveys as survey (survey.id)}
 		<li class="flex items-center justify-between gap-x-6 py-5">
 			<div class="min-w-0">

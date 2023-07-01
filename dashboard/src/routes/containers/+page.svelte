@@ -46,14 +46,13 @@
 </script>
 
 <FloatingHeader breadCrumbs={[{ name: "Containers" }]}>
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
 	<button on:click={onAdd} class="btn-primary" title="Add new container"> Add container </button>
 </FloatingHeader>
 
 <h1 class="m-4 text-2xl text-slate-600">Your containers</h1>
 
-<ul
-	class="divide-y divide-slate-100 bg-white shadow-md m-4 rounded-md border border-slate-100 px-4"
->
+<ul class="panel-std divide-y divide-slate-100 m-4 px-4">
 	{#each data.containers as container (container.id)}
 		<li class="flex items-center justify-between gap-x-6 py-5">
 			<div class="min-w-0">

@@ -6,6 +6,7 @@
 	export let question: SurveyQuestion | undefined = undefined;
 	const dispatch = createEventDispatcher<{ save: RatingQuestion }>();
 
+	let label = question?.label || "";
 	const onSubmit = (e: Event) => {
 		console.log("submit");
 		const data = new FormData(e.target as HTMLFormElement);
@@ -32,8 +33,10 @@
 			required
 			class="field-std block w-full"
 			placeholder="How do you rate your experience?"
-			value={question?.label || ""}
+			bind:value={label}
+			maxlength="200"
 		/>
+		<p class="text-sm text-slate-600 text-right">{label.length}/200</p>
 
 		<button type="submit" class="btn-primary w-1/3 self-center my-4">Save</button>
 	</form>
