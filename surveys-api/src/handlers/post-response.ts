@@ -4,23 +4,6 @@ import { Env } from "../env";
 import { RouterRequest } from "../router";
 import { getDb } from "../db";
 
-// const sendEvenToQueue = async (
-// 	queue: Fetcher,
-// 	request: Request,
-// 	event: SurveyEvent,
-// ): Promise<void> => {
-// 	console.log("Sending event to Fetcher!");
-// 	const res = await queue.fetch(request.clone());
-
-// 	console.log("Sent with status " + res.status);
-
-// 	if (!res.ok) {
-// 		console.error("Unable to send event to queue!!");
-// 		console.log(res.status);
-// 	}
-// 	return;
-// };
-
 export const handler = async (request: RouterRequest, env: Env): Promise<Response> => {
 	console.log("PUT RESPONSE HANDLER");
 
@@ -35,6 +18,8 @@ export const handler = async (request: RouterRequest, env: Env): Promise<Respons
 		response = SurveyResponse.parse({
 			...payload,
 			userToken: userToken,
+			created: new Date(),
+			updated: new Date(),
 		});
 
 		if (response.surveyId !== surveyId) {

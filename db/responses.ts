@@ -18,49 +18,29 @@ export const saveResponses = async (
     console.log("Saving responses", responses);
 
     console.log("SAVING RESPONSE QUERY");
-    console.log(
-        `INSERT INTO responses (survey_id, instance_id, user_token, question_id, content, created, updated) VALUES ${responses
-            .map(
-                (q, i) =>
-                    `( $${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${
-                        i * 7 + 4
-                    }, $${i * 7 + 5}, $${i * 7 + 6}, $${i * 7 + 7})`
-            )
-            .join(", ")}`,
-        responses.flatMap((resp) => {
-            return [
-                resp.surveyId,
-                resp.instanceId,
-                resp.userToken,
-                resp.questionId,
-                resp.content,
-                resp.created,
-                resp.updated,
-            ];
-        })
-    );
 
-    await db.query(
-        `INSERT INTO responses (survey_id, instance_id, user_token, question_id, content, created, updated) VALUES ${responses
-            .map(
-                (q, i) =>
-                    `( $${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${
-                        i * 7 + 4
-                    }, $${i * 7 + 5}, $${i * 7 + 6}, $${i * 7 + 7})`
-            )
-            .join(", ")}`,
-        responses.flatMap((resp) => {
-            return [
-                resp.surveyId,
-                resp.instanceId,
-                resp.userToken,
-                resp.questionId,
-                resp.content,
-                resp.created,
-                resp.updated,
-            ];
-        })
-    );
+    const query = `INSERT INTO responses (survey_id, instance_id, user_token, question_id, content, created, updated) VALUES ${responses
+        .map(
+            (q, i) =>
+                `( $${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${
+                    i * 7 + 4
+                }, $${i * 7 + 5}, $${i * 7 + 6}, $${i * 7 + 7})`
+        )
+        .join(", ")}`;
+    const queryParams = responses.flatMap((resp) => {
+        return [
+            resp.surveyId,
+            resp.instanceId,
+            resp.userToken,
+            resp.questionId,
+            resp.content,
+            resp.created,
+            resp.updated,
+        ];
+    });
+
+    console.log(query, queryParams);
+    await db.query(query, queryParams);
 };
 
 export const getResponsesBySurveyId = async (

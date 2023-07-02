@@ -87,16 +87,78 @@ export const postResponse = async (
 	}
 };
 
-export const postImpression = async (userToken: Token, surveyId: string): Promise<void> => {
-	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/impressions`, {
+export const postDisplayedEvent = async (
+	userToken: Token,
+	surveyId: string,
+	instanceId: string,
+): Promise<void> => {
+	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/events`, {
 		method: "POST",
 		headers: {
 			"x-user-token": userToken,
 		},
+		body: JSON.stringify({
+			instanceId: instanceId,
+			type: "displayed",
+		}),
 	});
 
 	if (!resp.ok) {
-		console.error("Unable to save the impression!", resp.statusText);
-		throw new Error("Ubable to save the impression!");
+		console.error("Unable to save the displayed event!", resp.statusText);
+		throw new Error("Unable to save the displayed event!");
+	}
+};
+
+export const postRespondedEvent = async (
+	userToken: Token,
+	surveyId: string,
+	instanceId: string,
+	response: SurveyResponse,
+): Promise<void> => {
+	console.log("POST RESPONDED EVENT");
+	console.log(
+		JSON.stringify({
+			questionId: response.questionId,
+			instanceId: instanceId,
+			type: "responded",
+		}),
+	);
+	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/events`, {
+		method: "POST",
+		headers: {
+			"x-user-token": userToken,
+		},
+		body: JSON.stringify({
+			questionId: response.questionId,
+			instanceId: instanceId,
+			type: "responded",
+		}),
+	});
+
+	if (!resp.ok) {
+		console.error("Unable to save the responded event!", resp.statusText);
+		throw new Error("Ubable to save the responded event!");
+	}
+};
+
+export const postCompletedEvent = async (
+	userToken: Token,
+	surveyId: string,
+	instanceId: string,
+): Promise<void> => {
+	const resp = await fetch(`http://localhost:8787/surveys/${surveyId}/events`, {
+		method: "POST",
+		headers: {
+			"x-user-token": userToken,
+		},
+		body: JSON.stringify({
+			instanceId: instanceId,
+			type: "completed",
+		}),
+	});
+
+	if (!resp.ok) {
+		console.error("Unable to save the finished event!", resp.statusText);
+		throw new Error("Ubable to save the finished event!");
 	}
 };

@@ -15,7 +15,7 @@ import { handler as getContainerInfo } from "./handlers/get-container";
 import { handler as getSurveyHandler } from "./handlers/get-survey";
 import { handler as postSurveyResponse } from "./handlers/post-response";
 import { handler as deleteSurvey } from "./handlers/delete-survey";
-import { handler as postImpression } from "./handlers/post-impression";
+import { handler as postEvent } from "./handlers/post-event";
 
 const router = Router();
 
@@ -28,7 +28,7 @@ router
 
 	.get("/containers/:containerId/surveys/:surveyId", getSurveyHandler as any)
 
-	.post("/surveys/:surveyId/impressions", postImpression as any)
+	.post("/surveys/:surveyId/events", postEvent as any)
 	.post("/surveys/:surveyId/responses", postSurveyResponse as any)
 
 	.options("*", () => {

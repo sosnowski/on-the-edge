@@ -2,7 +2,13 @@
 	import { onMount } from "svelte";
 	import SurveyForm from "surveys/form/SurveyForm.svelte";
 	import type { SurveyInfo } from "shared/models/survey";
-	import { postImpression, postResponse } from "../loader";
+	import {
+		postCompletedEvent,
+		postDisplayedEvent,
+		postRespondedEvent,
+		postResponse,
+	} from "../loader";
+	import type { SurveyResponse } from "shared/models/response";
 
 	export let survey: SurveyInfo;
 	export let userToken: string;
@@ -14,17 +20,26 @@
 	const instanceId = Math.random().toString(36).substring(2, 15);
 
 	onMount(async () => {
-		console.log("Survey mounted");
-		await postImpression(userToken, survey.id);
+		console.log("POST SURVEY DISPLAYED EVENT");
+		await postDisplayedEvent(userToken, survey.id, instanceId);
 	});
 
-	const onFormSubmit = async (event: CustomEvent<unknown>) => {
+	const onFormSubmit = async (event: CustomEvent<SurveyResponse>) => {
 		console.log("Form submitted");
 		console.log(event.detail);
 
 		page++;
 
-		await postResponse(userToken, survey.id, instanceId, event.detail);
+		console.log("POST RESPONDED EVENT ", event.detail);
+		await Promise.all([
+			postResponse(userToken, survey.id, instanceId, event.detail),
+			postRespondedEvent(userToken, survey.id, instanceId, event.detail),
+		]);
+
+		if (page >= survey.questions.length) {
+			console.log("POST SURVEY COMPLETED EVENT");
+			await postCompletedEvent(userToken, survey.id, instanceId);
+		}
 	};
 </script>
 
