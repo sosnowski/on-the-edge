@@ -159,10 +159,10 @@
 
 <FloatingHeader
 	breadCrumbs={[
-		{ name: surveyInfo.containerName || "", href: `/containers/${surveyInfo.containerId}/surveys` },
+		{ name: data.container?.name || "", href: `/containers/${data.container?.id}/surveys` },
 		{
 			name: surveyInfo.name,
-			href: `/containers/${surveyInfo.containerId}/surveys/${surveyInfo.id}`,
+			href: `/containers/${data.container?.id}/surveys/${surveyInfo.id}`,
 		},
 		{ name: "Responses" },
 	]}

@@ -35,7 +35,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"chart.js": "^4.3.0",
 		"luxon": "^3.3.0",
-		"nanoid": "^4.0.2"
+		"nanoid": "^4.0.2",
+		"svelte-chartjs": "^3.1.2"
 	}
 }

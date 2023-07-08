@@ -10,10 +10,10 @@ export const formatDateTime = (date?: Date) => {
 	})}`;
 };
 
-export const formatDate = (date?: Date, skipYear = false) => {
+export const formatDate = (date?: Date) => {
 	if (!date) return "";
 	return date.toLocaleDateString("en-GB", {
-		year: !skipYear ? "numeric" : undefined,
+		year: "numeric",
 		month: "long",
 		day: "numeric",
 	});

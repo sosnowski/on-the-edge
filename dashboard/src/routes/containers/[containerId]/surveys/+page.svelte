@@ -56,11 +56,13 @@
 				</div>
 			</div>
 			<div class="flex flex-none items-center gap-x-4">
-				<a href={`/containers/${survey.containerId}/surveys/${survey.id}`} class="btn-std">Edit</a>
-				<a
+				<a href={`/containers/${survey.containerId}/surveys/${survey.id}`} class="btn-primary"
+					>Results</a
+				>
+				<!-- <a
 					href={`/containers/${survey.containerId}/surveys/${survey.id}/responses`}
 					class="btn-primary">View Responses</a
-				>
+				> -->
 				<div class="relative flex-none">
 					<button
 						type="button"

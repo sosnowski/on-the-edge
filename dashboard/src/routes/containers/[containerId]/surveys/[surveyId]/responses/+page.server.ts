@@ -7,7 +7,6 @@ import { getSurveyInfoById } from "db/surveys";
 import { ResponsesFilters } from "shared/models/response";
 
 export const load = (async ({ url, params }) => {
-	const containerId = EntityId.parse(params.containerId);
 	const surveyId = EntityId.parse(params.surveyId);
 	const page = +(url.searchParams.get("page") || 1);
 	const pageSize = +(url.searchParams.get("pageSize") || 25);
