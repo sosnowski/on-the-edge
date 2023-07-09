@@ -63,5 +63,4 @@
 	<div class="panel-std col-span-4">
 		<ResponsesChart data={timeline} {range} on:range={onTimelineRangeChange} />
 	</div>
-	<div class="panel-std col-span-4">{JSON.stringify(stats)}</div>
 </div>

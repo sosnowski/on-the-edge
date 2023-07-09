@@ -10,6 +10,7 @@
 	import RatingCell from "$lib/grid/RatingCell.svelte";
 	import ActionsCell from "$lib/grid/ActionsCell.svelte";
 	import type { SurveyQuestion } from "shared/models/survey";
+	import SurveyTabs from "$lib/nav/SurveyTabs.svelte";
 
 	export let data: PageData;
 
@@ -166,7 +167,14 @@
 		},
 		{ name: "Responses" },
 	]}
-/>
+>
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
+	<SurveyTabs
+		surveyId={surveyInfo.id || ""}
+		containerId={data.container?.id || ""}
+		activeTab="responses"
+	/>
+</FloatingHeader>
 
 <h1 class="m-4 text-2xl text-slate-600">Responses</h1>
 <div class="flex-1 mx-4 pb-4">

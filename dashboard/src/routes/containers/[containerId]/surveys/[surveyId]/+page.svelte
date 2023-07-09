@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import FloatingHeader from "$lib/nav/FloatingHeader.svelte";
+	import SurveyTabs from "$lib/nav/SurveyTabs.svelte";
 	import Dashboard from "$lib/stats/Dashboard.svelte";
 	import type { PageData } from "./$types";
 
@@ -23,7 +24,14 @@
 		},
 		{ name: "Dashboard" },
 	]}
-/>
+>
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
+	<SurveyTabs
+		surveyId={data.survey?.id || ""}
+		containerId={data.container?.id || ""}
+		activeTab="dashboard"
+	/>
+</FloatingHeader>
 
 <Dashboard
 	stats={data.stats}

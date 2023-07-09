@@ -11,6 +11,7 @@
 	import { formatDateTime } from "$lib/helpers";
 	import InfoForm from "./info/InfoForm.svelte";
 	import { onMount } from "svelte";
+	import SurveyTabs from "$lib/nav/SurveyTabs.svelte";
 
 	export let survey: SurveyInfo;
 
@@ -260,9 +261,21 @@
 			name: currentSurvey.containerName || "Container",
 			href: `/containers/${currentSurvey.containerId}/surveys`,
 		},
-		{ name: currentSurvey.name },
+		{
+			name: currentSurvey.name,
+			href: `/containers/${currentSurvey.containerId}/surveys/${currentSurvey.id}`,
+		},
+		{
+			name: "Editor",
+		},
 	]}
 >
+	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
+	<SurveyTabs
+		surveyId={currentSurvey.id || ""}
+		containerId={currentSurvey.containerId}
+		activeTab="edit"
+	/>
 	<i class="fa-solid fa-grip-lines-vertical text-slate-300" />
 	<button title="Change survey name" on:click={() => showPanel("info")}>
 		<i class="fa-solid fa-pen" />

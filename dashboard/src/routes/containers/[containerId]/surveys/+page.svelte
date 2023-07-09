@@ -56,56 +56,23 @@
 				</div>
 			</div>
 			<div class="flex flex-none items-center gap-x-4">
-				<a href={`/containers/${survey.containerId}/surveys/${survey.id}`} class="btn-primary"
-					>Results</a
+				<a
+					title="Survey statistics"
+					href={`/containers/${survey.containerId}/surveys/${survey.id}`}
+					class="btn-primary"><i class="fa-solid fa-chart-pie" />Details</a
 				>
-				<!-- <a
+				<a
+					title="Show survey responses"
 					href={`/containers/${survey.containerId}/surveys/${survey.id}/responses`}
-					class="btn-primary">View Responses</a
-				> -->
-				<div class="relative flex-none">
-					<button
-						type="button"
-						class="-m-2.5 block p-2.5 text-slate-500 hover:text-slate-800"
-						id="options-menu-0-button"
-						aria-expanded="false"
-						aria-haspopup="true"
-					>
-						<span class="sr-only">Open options</span>
-						<i class="fa-solid fa-ellipsis-vertical" />
-					</button>
-
-					<!-- <div
-						class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
-						role="menu"
-						aria-orientation="vertical"
-						aria-labelledby="options-menu-0-button"
-						tabindex="-1"
-					>
-						 Active: "bg-gray-50", Not Active: "" 
-						<a
-							href="#"
-							class="block px-3 py-1 text-sm leading-6 text-gray-900"
-							role="menuitem"
-							tabindex="-1"
-							id="options-menu-0-item-0">Edit<span class="sr-only">, GraphQL API</span></a
-						>
-						<a
-							href="#"
-							class="block px-3 py-1 text-sm leading-6 text-gray-900"
-							role="menuitem"
-							tabindex="-1"
-							id="options-menu-0-item-1">Move<span class="sr-only">, GraphQL API</span></a
-						>
-						<a
-							href="#"
-							class="block px-3 py-1 text-sm leading-6 text-gray-900"
-							role="menuitem"
-							tabindex="-1"
-							id="options-menu-0-item-2">Delete<span class="sr-only">, GraphQL API</span></a
-						>
-					</div> -->
-				</div>
+					class="text-slate-500 hover:text-fuchsia-500"><i class="fa-solid fa-comments" /></a
+				>
+				<a
+					title="Edit survey"
+					href="/containers/{survey.containerId}/surveys/{survey.id}/edit"
+					class="text-slate-500 hover:text-fuchsia-500"
+				>
+					<i class="fa-solid fa-pen-to-square" />
+				</a>
 			</div>
 		</li>
 	{/each}
